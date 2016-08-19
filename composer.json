@@ -1,0 +1,18 @@
+{
+    "name": "ilgala/laravel-wizzy",
+    "description": "A laravel install wizard",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "IlGala",
+            "email": "filippo.galante@b-ground.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},    
+    "autoload": {
+        "psr-4": {
+            "IlGala\\LaravelWizzy\\": "src/"
+        }
+    }
+}
