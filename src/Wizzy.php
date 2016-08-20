@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Laravel Wizzy package.
+ *
+ * (c) Filippo Galante <filippo.galante@b-ground.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace IlGala\LaravelWizzy;
 
 /**
@@ -82,6 +91,50 @@ class Wizzy
     {
         $configRepository = app()->app['config'];
         return $configRepository->get('wizzy.prefix', '');
+    }
+
+    public static function isEnvironmentStepEnabled()
+    {
+        $configRepository = app()->app['config'];
+
+        return $configRepository->get('wizzy.steps.environment') ? 'true' : 'false';
+    }
+
+    public static function isDatabaseStepEnabled()
+    {
+        $configRepository = app()->app['config'];
+
+        return $configRepository->get('wizzy.steps.database') ? 'true' : 'false';
+    }
+
+    public function checkPHPVersion()
+    {
+        $temp_version = explode('.', phpversion());
+        $version = ($temp_version[0] * 10000 + $temp_version[1] * 100 + $temp_version[2]);
+
+        $temp_required_version = explode('.', $this->configRepository->get('wizzy.system_requirements.php.required'));
+        $required_version = ($temp_required_version[0] * 10000 + $temp_required_version[1] * 100 + $temp_required_version[2]);
+
+        $temp_preferred_version = explode('.', $this->configRepository->get('wizzy.system_requirements.php.preferred'));
+        $preferred_version = ($temp_preferred_version[0] * 10000 + $temp_preferred_version[1] * 100 + $temp_preferred_version[2]);
+
+        return [
+            'required' => ($version < $required_version),
+            'preferred' => ($version < $preferred_version),
+            'version' => ($version < $required_version ? $this->configRepository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->configRepository->get('wizzy.system_requirements.php.preferred') : phpversion())
+        ];
+    }
+
+    public function checkPHPExstensions()
+    {
+        $raw_extensions = $this->configRepository->get('wizzy.system_requirements.php_extensions');
+        $extensions = [];
+
+        foreach ($raw_extensions as $extension) {
+            $extensions[$extension] = phpversion($extension);
+        }
+
+        return $extensions;
     }
 
 }

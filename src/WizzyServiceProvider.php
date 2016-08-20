@@ -1,8 +1,18 @@
 <?php
 
+/*
+ * This file is part of Laravel Wizzy package.
+ *
+ * (c) Filippo Galante <filippo.galante@b-ground.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace IlGala\LaravelWizzy;
 
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
+use IlGala\LaravelWizzy\Wizzy;
 
 class WizzyServiceProvider extends LaravelServiceProvider
 {
@@ -25,6 +35,7 @@ class WizzyServiceProvider extends LaravelServiceProvider
         $this->handleConfigs();
         // $this->handleMigrations();
         $this->handleViews();
+        $this->handleAssets();
         $this->handleTranslations();
         $this->handleRoutes();
     }
@@ -37,11 +48,11 @@ class WizzyServiceProvider extends LaravelServiceProvider
     public function register()
     {
 
-        $this->app['wizzy'] = $this->app->singleton('wizzy', function () {
+        $this->app['wizzy'] = $this->app->share(function () {
             return new Wizzy();
         });
 
-        $this->app->alias('github', Wizzy::class);
+        $this->app->alias('wizzy', Wizzy::class);
     }
 
     /**
@@ -81,6 +92,12 @@ class WizzyServiceProvider extends LaravelServiceProvider
         $this->loadViewsFrom(__DIR__ . '/Views', 'wizzy');
 
         $this->publishes([__DIR__ . '/Views' => base_path('resources/views/vendor/wizzy')]);
+    }
+
+    private function handleAssets()
+    {
+
+        $this->publishes([__DIR__ . '/../public/assets' => public_path('assets')], 'public');
     }
 
     private function handleMigrations()

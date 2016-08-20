@@ -1,16 +1,22 @@
 <?php
 
-/**
- * Wizzy configuration file
+/*
+ * This file is part of Laravel Wizzy package.
+ *
+ * (c) Filippo Galante <filippo.galante@b-ground.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
 return [
     /*
      * Application system requirements
      */
     'system_requirements' => [
         'php' => [
-            'minimum_stability' => '5.5.9',
-            'preferred_stability' => '5.5.9'
+            'required' => '5.5.9',
+            'preferred' => '5.5.9'
         ],
         'php_extensions' => [
             'OpenSSL',
@@ -29,7 +35,6 @@ return [
      * Enable/disable wizard steps
      */
     'steps' => [
-        'server_requirements' => true,
         'environment' => true,
         'database' => true,
     ],

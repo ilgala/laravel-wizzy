@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Laravel Wizzy package.
+ *
+ * (c) Filippo Galante <filippo.galante@b-ground.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace IlGala\LaravelWizzy;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -19,16 +28,28 @@ class WizzyController extends BaseController
         DispatchesJobs,
         ValidatesRequests;
 
-    public function welcome(Request $request)
+    /**
+     *
+     * @var \IlGala\LaravelWizzy\Wizzy
+     */
+    protected $wizzy;
+
+    public function __construct()
     {
-        return view('wizzy::index');
+        $this->wizzy = app('wizzy');
     }
 
-    public function requirements(Request $request)
+    public function welcome(Request $request)
     {
-        if (!$request->isJson()) {
-            throw new WizzyException("");
+        if ($request->ajax()) {
+            $version = $this->wizzy->checkPHPVersion();
+            $extensions = $this->wizzy->checkPHPExstensions();
+
+            return response()->json(compact('version', 'extensions'));
         }
+
+
+        return view('wizzy::index');
     }
 
     public function environment(Request $request)
