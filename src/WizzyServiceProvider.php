@@ -11,7 +11,9 @@
 
 namespace IlGala\LaravelWizzy;
 
+use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
+use Laravel\Lumen\Application as LumenApplication;
 use IlGala\LaravelWizzy\Wizzy;
 
 class WizzyServiceProvider extends LaravelServiceProvider
@@ -31,9 +33,7 @@ class WizzyServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-
         $this->handleConfigs();
-        // $this->handleMigrations();
         $this->handleViews();
         $this->handleAssets();
         $this->handleTranslations();
@@ -69,7 +69,7 @@ class WizzyServiceProvider extends LaravelServiceProvider
     private function handleConfigs()
     {
 
-        $configPath = __DIR__ . '/../config/wizzy.php';
+        $source = realpath(__DIR__ . '/../config/wizzy.php');
 
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('wizzy.php')]);
@@ -77,7 +77,7 @@ class WizzyServiceProvider extends LaravelServiceProvider
             $this->app->configure('wizzy');
         }
 
-        $this->mergeConfigFrom($configPath, 'wizzy');
+        $this->mergeConfigFrom($source, 'wizzy');
     }
 
     private function handleTranslations()
@@ -98,12 +98,6 @@ class WizzyServiceProvider extends LaravelServiceProvider
     {
 
         $this->publishes([__DIR__ . '/../public/assets' => public_path('assets')], 'public');
-    }
-
-    private function handleMigrations()
-    {
-
-        $this->publishes([__DIR__ . '/Migrations' => base_path('database/migrations')]);
     }
 
     private function handleRoutes()

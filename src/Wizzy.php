@@ -121,7 +121,7 @@ class Wizzy
         return [
             'required' => ($version < $required_version),
             'preferred' => ($version < $preferred_version),
-            'version' => ($version < $required_version ? $this->configRepository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->configRepository->get('wizzy.system_requirements.php.preferred') : phpversion())
+            'version' => ($version < $required_version ? $this->configRepository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->configRepository->get('wizzy.system_requirements.php.preferred') : '')
         ];
     }
 
@@ -135,6 +135,23 @@ class Wizzy
         }
 
         return $extensions;
+    }
+
+    public function fromEnvToArray($envPath)
+    {
+        $env_lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $env_variables = [];
+
+        foreach ($env_lines as $line) {
+            // Check if comment
+            if (substr($line, 0, 1) !== '#') {
+                // Not a comment, explode line
+                $variable = explode('=', $line);
+                $env_variables[$variable[0]] = $variable[1];
+            }
+        }
+
+        return $env_variables;
     }
 
 }

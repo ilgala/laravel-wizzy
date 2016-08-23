@@ -39,13 +39,21 @@ class WizzyController extends BaseController
         $this->wizzy = app('wizzy');
     }
 
-    public function welcome(Request $request)
+    public function index(Request $request)
     {
         if ($request->ajax()) {
             $version = $this->wizzy->checkPHPVersion();
             $extensions = $this->wizzy->checkPHPExstensions();
 
-            return response()->json(compact('version', 'extensions'));
+            $nextEnabled = $version['required'] == false;
+
+            foreach ($extensions as $key => $value) {
+                if (!$value) {
+                    $nextEnabled = false;
+                }
+            }
+
+            return response()->json(compact('version', 'extensions', 'nextEnabled'));
         }
 
 
@@ -54,23 +62,56 @@ class WizzyController extends BaseController
 
     public function environment(Request $request)
     {
-        if (!$request->isJson()) {
-            throw new WizzyException("");
+        if (!$request->ajax()) {
+            throw new WizzyException("Method not allowed", 401);
         }
+
+        // Recover environment file
+        $envPath = base_path('.env.example');
+
+        $env_variables = $this->wizzy->fromEnvToArray($envPath);
+
+        return response()->json(compact('env_variables'));
     }
 
     public function database(Request $request)
     {
-        if (!$request->isJson()) {
-            throw new WizzyException("");
+        if (!$request->ajax()) {
+            throw new WizzyException("Method not allowed", 401);
         }
     }
 
     public function conclusion(Request $request)
     {
-        if (!$request->isJson()) {
-            throw new WizzyException("");
+        if (!$request->ajax()) {
+            throw new WizzyException("Method not allowed", 401);
         }
+    }
+
+    public function storeSettings(Request $request)
+    {
+        if (!$request->has('view')) {
+            throw new WizzyException("No view defined", 500);
+        }
+
+        switch ($view) {
+            case 'environment':
+                return $this->storeEnvironmentSettings();
+            case 'database':
+                return $this->storeDatabaseSettings();
+            default:
+                throw new WizzyException("Undefined view", 500);
+        }
+    }
+
+    private function storeEnvironmentSettings()
+    {
+
+    }
+
+    private function storeDatabaseSettings()
+    {
+
     }
 
 }

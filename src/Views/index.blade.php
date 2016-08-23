@@ -6,6 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Wizzy</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Laravel Wizzy">
+        <meta name="author" content="IlGala">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
@@ -43,46 +47,6 @@
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
                     <div id="wizzy" class="panel panel-default">
-                        <div class="panel-body">
-                            <div class="col-md-12 wizzy-steps mbot-10">
-                                <div class="btn-group btn-group-justified">
-                                    <a href="#" class="btn btn-success" data-step="1">Welcome</a>
-                                    <a href="#" class="btn btn-default disabled" data-step="3" disabled>Environment</a>
-                                    <a href="#" class="btn btn-default disabled" data-step="4" disabled>Database</a>
-                                    <a href="#" class="btn btn-default disabled" data-step="5" disabled>Conclusion</a>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12 well wizzy-body-content">
-                                <div class="wizzy-welcome" data-step="1">
-                                    <h4>Wizzy says hello!</h4>
-                                    <p>With this wizard you can customize your own laravel installation</p>
-                                    <div class="requirements">
-                                        <ul class="list-group">
-                                            <li class="list-group-item {{ $version['required'] ? 'list-group-item-danger' : $version['preferred'] ? 'list-group-item-warning' : 'list-group-item-success'  }}">
-                                                <span class="badge"><i class="fa {{ $version['required'] && $version['preferred'] ? 'fa-times' : 'fa-check' }}"></i></span>Requested php version: {{ $version['version'] }}
-                                            </li>
-                                            @foreach($extensions as $key => $value)
-                                            <li class="list-group-item {{ $value ? 'list-group-item-success' : 'list-group-item-danger' }}">
-                                                <span class="badge"><i class="fa {{ $value ? 'fa-check' : 'fa-times' }}"></i></span> {{ $key }}
-                                            </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
-                                <form class="form-horizontal wizzy-requirements"></form>
-                                <form class="form-horizontal wizzy-enviroments"></form>
-                                <form class="form-horizontal wizzy-database"></form>
-                                <form class="form-horizontal wizzy-database"></form>
-                            </div>
-
-                            <div class="col-md-offset-8 col-md-4 wizzy-footer">
-                                <div class="btn-group btn-group-justified">
-                                    <a href="#" class="btn btn-default wizzy-previous-btn" disabled>Previous</a>
-                                    <a href="#" class="btn btn-default wizzy-next-btn" disabled>Next</a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -97,9 +61,13 @@
         <script>
         $(document).ready(function () {
 $('#wizzy').wizzy({
-environment: {{ Wizzy::isEnvironmentStepEnabled() }}
-database: {{ Wizzy::isDatabaseStepEnabled() }}
-});
+environment: {{ Wizzy::isEnvironmentStepEnabled() }},
+        database: {{ Wizzy::isDatabaseStepEnabled() }},
+        welcomeRoute: "{{ route(Wizzy::getPrefix() . '.wizzy') }}",
+        environmentRoute: "{{ route(Wizzy::getPrefix() . '.environment') }}",
+        databaseRoute: "{{ route(Wizzy::getPrefix() . '.database') }}",
+        storeSettingsRoute: "{{ route(Wizzy::getPrefix() . '.store') }}",
+        });
         });
         </script>
     </body>

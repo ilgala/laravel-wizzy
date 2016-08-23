@@ -42,5 +42,8 @@ return [
      * Wizzy route group prefix
      */
     'prefix' => 'install',
-    'enviroment'
+    /*
+     * Environment file
+     */
+    'enviroment' => '.example.env'
 ];

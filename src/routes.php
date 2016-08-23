@@ -12,7 +12,7 @@
 use IlGala\LaravelWizzy\Wizzy;
 
 Route::group(['prefix' => Wizzy::getPrefix(), 'namespace' => 'IlGala\LaravelWizzy', 'middleware' => 'web'], function() {
-    Route::get('welcome', ['as' => Wizzy::getPrefix() . '.welcome', 'uses' => 'WizzyController@welcome']);
+    Route::get('wizzy', ['as' => Wizzy::getPrefix() . '.wizzy', 'uses' => 'WizzyController@index']);
     Route::get('environment', ['as' => Wizzy::getPrefix() . '.environment', 'uses' => 'WizzyController@environment']);
     Route::get('database', ['as' => Wizzy::getPrefix() . '.database', 'uses' => 'WizzyController@database']);
     Route::post('store', ['as' => Wizzy::getPrefix() . '.store', 'uses' => 'WizzyController@storeSettings']);

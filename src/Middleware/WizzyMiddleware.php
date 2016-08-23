@@ -29,7 +29,7 @@ class WizzyMiddleware
         $wizzy = env('WIZZY_ENABLED', false);
 
         if ($wizzy && !$request->is(Wizzy::getPrefix() . '/*')) {
-            return redirect()->route(Wizzy::getPrefix() . '.welcome');
+            return redirect()->route(Wizzy::getPrefix() . '.wizzy');
         }
 
         return $next($request);
