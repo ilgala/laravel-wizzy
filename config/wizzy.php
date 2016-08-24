@@ -45,5 +45,9 @@ return [
     /*
      * Environment file
      */
-    'enviroment' => '.example.env'
+    'enviroment' => '.example.env',
+    /*
+     * Redirect route after complete
+     */
+    'redirectTo' => '/'
 ];

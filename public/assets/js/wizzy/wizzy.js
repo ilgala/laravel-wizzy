@@ -328,6 +328,26 @@
                     });
 
                     var saveBtn = $('<button />', {type: 'button', class: 'btn btn-sm btn-success pull-right', html: '<i class="fa fa-save"></i> ' + $.fn[pluginName].locale.views.environment.save});
+                    saveBtn.click(function () {
+                        $.ajax({
+                            url: $this.options.environmentRoute,
+                            method: 'GET',
+                            dataType: 'JSON',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            async: true,
+                            success: function (response) {
+
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                $this._error(jqXHR);
+                                $this._error(jqXHR.responseText);
+                                $this._error(errorThrown);
+                                $this._error(textStatus);
+                            }
+                        });
+                    });
 
                     environmentForm.append(actionsFormGroup.append(actionsContainer.append(addBtn).append(saveBtn)));
                 },

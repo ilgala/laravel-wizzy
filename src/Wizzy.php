@@ -154,4 +154,13 @@ class Wizzy
         return $env_variables;
     }
 
+    public function checkEnvFilename($filename)
+    {
+        if (strlen($filename) > 0 && substr($filename, 0, 1) === '.') {
+            $filename = substr($filename, 1, strlen($filename));
+        }
+
+        return $filename;
+    }
+
 }

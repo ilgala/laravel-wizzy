@@ -56,10 +56,10 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js" integrity="sha384-I6F5OKECLVtK/BL+8iSLDEHowSAfUo76ZL9+kGAgTRdiByINKJaqTPH/QVNS1VDb" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
-        <script src="/assets/js/wizzy.js"></script>
-        <script src="/assets/js/locale/en.js"></script>
+        <script src="/assets/js/wizzy/wizzy.js"></script>
+        <script src="/assets/js/wizzy/locale/en.js"></script>
         <script>
-        $(document).ready(function () {
+$(document).ready(function () {
 $('#wizzy').wizzy({
 environment: {{ Wizzy::isEnvironmentStepEnabled() }},
         database: {{ Wizzy::isDatabaseStepEnabled() }},
@@ -67,8 +67,8 @@ environment: {{ Wizzy::isEnvironmentStepEnabled() }},
         environmentRoute: "{{ route(Wizzy::getPrefix() . '.environment') }}",
         databaseRoute: "{{ route(Wizzy::getPrefix() . '.database') }}",
         storeSettingsRoute: "{{ route(Wizzy::getPrefix() . '.store') }}",
-        });
-        });
+});
+});
         </script>
     </body>
 </html>
