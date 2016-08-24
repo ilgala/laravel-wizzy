@@ -15,5 +15,5 @@ Route::group(['prefix' => Wizzy::getPrefix(), 'namespace' => 'IlGala\LaravelWizz
     Route::get('wizzy', ['as' => Wizzy::getPrefix() . '.wizzy', 'uses' => 'WizzyController@index']);
     Route::get('environment', ['as' => Wizzy::getPrefix() . '.environment', 'uses' => 'WizzyController@environment']);
     Route::get('database', ['as' => Wizzy::getPrefix() . '.database', 'uses' => 'WizzyController@database']);
-    Route::post('store', ['as' => Wizzy::getPrefix() . '.store', 'uses' => 'WizzyController@storeSettings']);
+    Route::post('execute', ['as' => Wizzy::getPrefix() . '.execute', 'uses' => 'WizzyController@execute']);
 });

@@ -18,11 +18,23 @@ $.fn.wizzy.locale = {
             placeholder: 'insert value...',
             add: 'Add variable',
             save: 'Save file',
+            modal: {
+                title: 'Are you sure?',
+                body: 'You can anyway return back and modify your environment variables',
+                undo: 'Let me check again...',
+                confirm: 'I\'m sure!'
+            }
         },
         database: {
-            title: 'Welcome',
-            subtitle: 'Wizzy will guide you through the installation process of your application',
-            message: 'Let\'s start by checking your server requirements',
+            title: 'Database',
+            subtitle: 'Third step, database refresh - seed - migration',
+            message: 'Wizzy will now run the database migrations, please be sure that the environment variables you have setted are correct. You can also choose to run the database refresh command and the table seed command',
+            modal: {
+                title: 'Are you sure?',
+                body: 'You can anyway return back and modify your database variables',
+                undo: 'Let me check again...',
+                confirm: 'I\'m sure!'
+            }
         },
         conclusion: {
             title: 'Welcome',

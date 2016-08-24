@@ -11,6 +11,9 @@
 
 namespace IlGala\LaravelWizzy;
 
+use Artisan;
+use File;
+
 /**
  * Description of Wizzy
  *
@@ -93,6 +96,15 @@ class Wizzy
         return $configRepository->get('wizzy.prefix', '');
     }
 
+    /**
+     * Get wizzy route group prefix
+     */
+    public static function getDefaultEnv()
+    {
+        $configRepository = app()->app['config'];
+        return $configRepository->get('wizzy.enviroment', '.env.example');
+    }
+
     public static function isEnvironmentStepEnabled()
     {
         $configRepository = app()->app['config'];
@@ -161,6 +173,54 @@ class Wizzy
         }
 
         return $filename;
+    }
+
+    public static function environmentStore($filename, $variables)
+    {
+        if (strlen($filename) == 0) {
+            $filename = '.env';
+        }
+
+        $file = fopen(base_path($filename), 'w');
+
+        $exploded_variables = explode('|', $variables);
+
+        foreach ($exploded_variables as $variable) {
+            $exploded_variable = explode(':', $variable);
+            fwrite($file, $exploded_variable[0] . "=" . $exploded_variable[1] . "\n");
+        }
+
+        fclose($file);
+
+        return $filename;
+    }
+
+    public static function runMigration($path, $refresh_database, $seed_database)
+    {
+        // Retrieve force flag
+        $configRepository = app()->app['config'];
+
+        $force_flag = $configRepository->get('wizzy.foce_flag');
+
+        // Check database refresh
+        if ($refresh_database) {
+            Artisan::call('migrate:refresh', array('--seed' => $seed_database));
+        }
+
+        // Call migrations
+        Artisan::call('migrate', array('--path' => $path, '--force' => $force_flag));
+    }
+
+    public static function getMigrationsList($path)
+    {
+        $files = [];
+        $filesInFolder = File::allFiles(base_path($path));
+
+        foreach ($filesInFolder as $path) {
+            array_push($files, pathinfo($path)['basename']);
+        }
+
+        return $files;
     }
 
 }

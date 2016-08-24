@@ -45,7 +45,15 @@ return [
     /*
      * Environment file
      */
-    'enviroment' => '.example.env',
+    'enviroment' => '.env',
+    /*
+     * Migrations filesystem path
+     */
+    'migrations_path' => 'database/migrations',
+    /*
+     * Forcing Migrations To Run In Production
+     */
+    'force_flag' => false,
     /*
      * Redirect route after complete
      */

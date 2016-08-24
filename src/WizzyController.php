@@ -73,9 +73,11 @@ class WizzyController extends BaseController
             $envPath = base_path('.env.example');
         }
 
+        $filename = explode('.', $envPath)[1] == 'env' ? '' : explode('.', $envPath)[1];
+
         $env_variables = $this->wizzy->fromEnvToArray($envPath);
 
-        return response()->json(compact('env_variables'));
+        return response()->json(compact('filename', 'env_variables'));
     }
 
     public function database(Request $request)
@@ -83,6 +85,11 @@ class WizzyController extends BaseController
         if (!$request->ajax()) {
             throw new WizzyException("Method not allowed", 401);
         }
+
+        $configRepository = app()->app['config'];
+        $migrations = Wizzy::getMigrationsList($configRepository->get('wizzy.migrations_path'));
+
+        return response()->json(compact('migrations'));
     }
 
     public function conclusion(Request $request)
@@ -92,7 +99,7 @@ class WizzyController extends BaseController
         }
     }
 
-    public function storeSettings(Request $request)
+    public function execute(Request $request)
     {
         if (!$request->has('view')) {
             throw new WizzyException("No view defined", 500);
@@ -102,7 +109,7 @@ class WizzyController extends BaseController
             case 'environment':
                 return $this->storeEnvironmentSettings($request);
             case 'database':
-                return $this->storeDatabaseSettings($request);
+                return $this->runMigrations($request);
             default:
                 throw new WizzyException("Undefined view", 500);
         }
@@ -110,19 +117,29 @@ class WizzyController extends BaseController
 
     private function storeEnvironmentSettings(Request $request)
     {
-        $filename = $this->wizzy->checkEnvFilename($request->get('filename', ''));
-        $env_variables = $request->get('env_variables', '');
+        $this->validate($request, [
+            'variables' => 'required'
+        ]);
 
+        // Setup filename
+        $filename = Wizzy::environmentStore($request->get('filename'), $request->get('variables'));
 
+        session()->put('wizzy.envfile', $filename);
 
-        $nextEnabled = true;
-        return response()->json(compact('nextEnabled'));
+        return response()->json(compact('success', 'message'));
     }
 
-    private function storeDatabaseSettings(Request $request)
+    private function runMigrations(Request $request)
     {
-        $this->validate($request, [
-        ]);
+        $configRepository = app()->app['config'];
+        $migrations_path = Wizzy::getMigrationsList($configRepository->get('wizzy.migrations_path'));
+
+        $refresh_database = $request->get('refresh', false);
+        $seed_database = $request->get('seed', false);
+
+        Wizzy::runMigration($migrations_path, $refresh_database, $seed_database);
+
+        return response()->json(compact('success', 'message'));
     }
 
 }
