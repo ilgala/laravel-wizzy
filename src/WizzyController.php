@@ -67,7 +67,11 @@ class WizzyController extends BaseController
         }
 
         // Recover environment file
-        $envPath = base_path('.env.example');
+        if (session()->get('wizzy.envfile', null) !== null) {
+            $envPath = base_path(session()->get('wizzy.envfile'));
+        } else {
+            $envPath = base_path('.env.example');
+        }
 
         $env_variables = $this->wizzy->fromEnvToArray($envPath);
 
@@ -94,24 +98,31 @@ class WizzyController extends BaseController
             throw new WizzyException("No view defined", 500);
         }
 
-        switch ($view) {
+        switch ($request->get('view')) {
             case 'environment':
-                return $this->storeEnvironmentSettings();
+                return $this->storeEnvironmentSettings($request);
             case 'database':
-                return $this->storeDatabaseSettings();
+                return $this->storeDatabaseSettings($request);
             default:
                 throw new WizzyException("Undefined view", 500);
         }
     }
 
-    private function storeEnvironmentSettings()
+    private function storeEnvironmentSettings(Request $request)
     {
+        $filename = $this->wizzy->checkEnvFilename($request->get('filename', ''));
+        $env_variables = $request->get('env_variables', '');
 
+
+
+        $nextEnabled = true;
+        return response()->json(compact('nextEnabled'));
     }
 
-    private function storeDatabaseSettings()
+    private function storeDatabaseSettings(Request $request)
     {
-
+        $this->validate($request, [
+        ]);
     }
 
 }
