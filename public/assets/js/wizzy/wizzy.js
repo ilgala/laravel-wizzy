@@ -78,7 +78,11 @@
                             // Setup ajax data
                             var filename = '';
                             if ($this.environmentForm.find('input.wizzy-env-filename').val().length > 0) {
-                                filename = filename.concat('.' + $this.environmentForm.find('input.wizzy-env-filename').val() + '.env');
+                                if (filename.startsWith('.')) {
+                                    filename = filename.concat($this.environmentForm.find('input.wizzy-env-filename').val() + '.env');
+                                } else {
+                                    filename = filename.concat('.' + $this.environmentForm.find('input.wizzy-env-filename').val() + '.env');
+                                }
                             }
 
                             var data = {
@@ -395,10 +399,9 @@
                     var label = $('<label />', {class: 'col-sm-2 control-label', html: $.fn[pluginName].locale.views.environment.filename});
                     var container = $('<div />', {class: 'col-sm-10'});
                     var inputGroup = $('<div />', {class: 'input-group'});
-                    var dotSpan = $('<span />', {class: 'input-group-addon', html: '.'});
                     var input = $('<input />', {type: 'text', class: 'wizzy-env-filename form-control', val: response.filename, placeholder: $.fn[pluginName].locale.views.environment.placeholder});
                     var dotEnvSpan = $('<span />', {class: 'input-group-addon', html: '.env'});
-                    $this.environmentForm.append(formGroup.append(label).append(container.append(inputGroup.append(dotSpan).append(input).append(dotEnvSpan)))).append('<hr/>');
+                    $this.environmentForm.append(formGroup.append(label).append(container.append(inputGroup.append(input).append(dotEnvSpan)))).append('<hr/>');
                     $.each(response.env_variables, function (key, value) {
                         var formGroup = $('<div />', {class: 'form-group'});
                         var label = $('<label />', {class: 'col-sm-2 control-label', html: key});

@@ -11,6 +11,10 @@
 
 return [
     /*
+     * Wizzy enable. This will be considered only if .env variable WIZZY_ENABLED is null
+     */
+    'wizzy_enabled' => true,
+    /*
      * Application system requirements
      */
     'system_requirements' => [
@@ -45,7 +49,7 @@ return [
     /*
      * Environment file
      */
-    'enviroment' => '.env',
+    'enviroment' => '.env.example',
     /*
      * Migrations filesystem path
      */

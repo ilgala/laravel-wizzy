@@ -26,9 +26,13 @@ class WizzyMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $wizzy = env('WIZZY_ENABLED', false);
+        $wizzy_enabled = env('WIZZY_ENABLED', null);
 
-        if ($wizzy && !$request->is(Wizzy::getPrefix() . '/*')) {
+        if ($wizzy_enabled == null) {
+            $wizzy_enabled = Wizzy::isWizzyEnabled() == 'true';
+        }
+
+        if ($wizzy_enabled && !$request->is(Wizzy::getPrefix() . '/*')) {
             return redirect()->route(Wizzy::getPrefix() . '.wizzy');
         }
 

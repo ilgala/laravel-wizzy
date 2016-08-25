@@ -36,6 +36,7 @@ class WizzyController extends BaseController
 
     public function __construct()
     {
+        info(env('DB_DATABASE'));
         $this->wizzy = app('wizzy');
     }
 
@@ -97,6 +98,10 @@ class WizzyController extends BaseController
         if (!$request->ajax()) {
             throw new WizzyException("Method not allowed", 401);
         }
+
+        // WIZZY_ENABLED FALSE
+        // run php artisan clear-compiled && php artisan optimize
+        // run php artisan key:generate
     }
 
     public function execute(Request $request)

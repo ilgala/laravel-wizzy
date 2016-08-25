@@ -15,7 +15,7 @@ $.fn.wizzy.locale = {
             subtitle: 'Second step, create envornment variables file',
             message: 'With this form you are able to create a .personal.env file with custom variables, don\'t forget to save the file before moving on!',
             filename: '.env filename',
-            placeholder: 'insert value...',
+            placeholder: '.production (this is optional)',
             add: 'Add variable',
             save: 'Save file',
             modal: {
