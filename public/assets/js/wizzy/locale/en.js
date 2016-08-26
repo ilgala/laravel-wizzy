@@ -8,7 +8,7 @@ $.fn.wizzy.locale = {
             extensions: 'Required extensions',
             requiredVersion: 'Required php version is',
             preferredVersion: 'Preferred php version is',
-            version: 'Your php version is correct',
+            version: 'Your php version is correct'
         },
         environment: {
             title: 'Environment variables',
@@ -29,6 +29,9 @@ $.fn.wizzy.locale = {
             title: 'Database',
             subtitle: 'Third step, database refresh - seed - migration',
             message: 'Wizzy will now run the database migrations, please be sure that the environment variables you have setted are correct. You can also choose to run the database refresh command and the table seed command',
+            refresh: 'Run migrate:refresh command',
+            seed: 'With --seed flag',
+            migrations: 'Wizzy is running the migrations, please wait...',
             modal: {
                 title: 'Are you sure?',
                 body: 'You can anyway return back and modify your database variables',
@@ -37,13 +40,14 @@ $.fn.wizzy.locale = {
             }
         },
         conclusion: {
-            title: 'Welcome',
-            subtitle: 'Wizzy will guide you through the installation process of your application',
-            message: 'Let\'s start by checking your server requirements',
-        },
+            title: 'Installation completed!',
+            subtitle: 'Your application is installed and ready to use!',
+            message: 'Wizzy has setted the "WIZZY_ENABLED" variable to false, if you need to run this setup again change it to true!'
+        }
     },
     interface: {
         previous: '<i class="fa fa-arrow-left"> Previous',
         next: 'Next <i class="fa fa-arrow-right">',
+        complete: 'Installation completed!'
     }
-}
+};

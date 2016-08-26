@@ -49,7 +49,7 @@ return [
     /*
      * Environment file
      */
-    'enviroment' => '.env.example',
+    'environment' => '.env',
     /*
      * Migrations filesystem path
      */

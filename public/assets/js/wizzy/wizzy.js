@@ -8,12 +8,13 @@
 (function ($, window, document, undefined) {
     var pluginName = 'wizzy',
             defaults = {
-                loading: '<div class="loading col-md-12 text-center"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>',
+                loading: '<div class="loading col-md-12 text-center"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></div>',
                 environment: false,
                 database: false,
                 interface: {
-                    $btnPrevious: $('<div />', {class: 'btn btn-default wizzy-previous-btn', disabled: true}),
-                    $btnNext: $('<div />', {class: 'btn btn-default wizzy-next-btn', disabled: true})
+                    $btnPrevious: $('<a />', {class: 'btn btn-default wizzy-previous-btn', disabled: true}),
+                    $btnNext: $('<a />', {class: 'btn btn-default wizzy-next-btn', disabled: true}),
+                    $btnComplete: $('<a />', {class: 'btn btn-default wizzy-next-btn', disabled: true}),
                 }
             },
     DEBUG = true;
@@ -41,14 +42,23 @@
             $this.$navigation.append(btnGroup);
             $this.$element.append($this.$body.append($this.$navigation));
             // Footer initialization
-            $this.$footer = $('<div />', {class: 'panel-footer wizzy-footer'});
+            $this.$footer = $('<div />', {class: 'panel-footer wizzy-footer clearfix'});
             var row = $('<div />', {class: 'row'});
-            var container = $('<div />', {class: 'col-md-offset-8 col-md-4'});
-            var btnGroup = $('<div />', {class: 'btn-group btn-group-justified'});
+            var container = $('<div />', {class: 'col-md-offset-7 col-md-5'});
+            var btnGroup = $('<div />', {class: 'btn-group btn-group-justified mbot-10'});
             // Setup locale
             $this.options.interface.$btnPrevious.html($.fn[pluginName].locale.interface.previous);
             $this.options.interface.$btnNext.html($.fn[pluginName].locale.interface.next);
-            $this.$element.append($this.$footer.append(row.append(container.append(btnGroup.append($this.options.interface.$btnPrevious).append($this.options.interface.$btnNext)))));
+            $this.options.interface.$btnComplete.html($.fn[pluginName].locale.interface.complete);
+            $this.options.interface.$btnComplete.attr('href', $this.options.redirectUrl);
+            $this.$element.append($this.$footer.append(row.append(container.append(btnGroup
+                    .append($this.options.interface.$btnPrevious)
+                    .append($this.options.interface.$btnNext)
+                    .append($this.options.interface.$btnComplete)))));
+
+            // Hide complete button
+            $this.options.interface.$btnComplete.hide();
+
             $this.renderContent($this.$body, 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
             // previous button listener
             $this.options.interface.$btnPrevious.click(function (e) {
@@ -114,6 +124,7 @@
                                 success: function (response) {
                                     $this._debug(response);
                                     if (response.token !== undefined) {
+                                        $this._debug('TOKEN REFRESH');
                                         $('meta[name="csrf-token"]').attr('content', response.token);
                                     }
                                     $modal.modal('hide');
@@ -150,9 +161,17 @@
 
                         $modal.find('.wizzy-accept-btn').html($.fn[pluginName].locale.views.database.modal.confirm);
                         $modal.find('.wizzy-accept-btn').click(function () {
+                            // modify modal
+                            var loadingRow = $('<div />', {class: 'row'});
+                            var loading = $($this.options.loading).clone();
+                            loading.html('<h3>' + $.fn[pluginName].locale.views.database.migrations + '</h3>' + loading.html());
+                            $modal.find('.modal-body').append(loadingRow.append(loading));
+
                             // Setup ajax data
                             var data = {
                                 view: 'database',
+                                refresh: $this.databaseForm.find('input[name=refresh]').prop('checked'),
+                                seed: $this.databaseForm.find('input[name=seed]').prop('checked')
                             };
 
                             $this._debug(data);
@@ -170,8 +189,13 @@
                                 success: function (response) {
                                     $this._debug(response);
                                     if (response.token !== undefined) {
+                                        $this._debug('TOKEN REFRESH');
                                         $('meta[name="csrf-token"]').attr('content', response.token);
                                     }
+
+                                    // Remove loading
+                                    loadingRow.remove();
+
                                     $modal.modal('hide');
 
                                     $this.renderContent($this.$body, $this.view.data('step') + 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
@@ -179,6 +203,9 @@
                                 error: function (jqXHR, textStatus, errorThrown) {
                                     $this._error(jqXHR);
                                     $this._error(jqXHR.responseText);
+
+                                    // Remove loading
+                                    loadingRow.remove();
 
                                     var error = JSON.parse(jqXHR.responseText);
 
@@ -232,9 +259,14 @@
         // Private methods
         _initializeNavigation: function () {
             var $this = this;
+
+            // Setup variables
+            var step = 1;
             var btnGroup = $('<div />', {class: 'btn-group btn-group-justified wizzy-step'});
             var welcomeBtn = $('<a />', {href: '#', class: 'btn btn-success', html: $.fn[pluginName].locale.views.welcome.title});
-            welcomeBtn.data('step', 1);
+
+            // Welcome data
+            welcomeBtn.data('step', step);
             welcomeBtn.data('stepEnabled', true);
             welcomeBtn.click(function () {
                 var button = $(this);
@@ -243,6 +275,9 @@
                 }
             });
             btnGroup.append(welcomeBtn);
+            step++;
+
+            // Environment data
             if ($this.options.environment) {
                 var environmentBtn = $('<a />', {href: '#', class: 'btn btn-default disabled', html: $.fn[pluginName].locale.views.environment.title});
                 environmentBtn.data('step', 2);
@@ -254,8 +289,10 @@
                     }
                 });
                 btnGroup.append(environmentBtn);
+                step++;
             }
 
+            // Database data
             if ($this.options.database) {
                 var databaseBtn = $('<a />', {href: '#', class: 'btn btn-default disabled', html: $.fn[pluginName].locale.views.database.title});
                 databaseBtn.data('step', 3);
@@ -267,10 +304,12 @@
                     }
                 });
                 btnGroup.append(databaseBtn);
+                step++;
             }
 
+            // Conclusion data
             var conclusionBtn = $('<a />', {href: '#', class: 'btn btn-default disabled', html: $.fn[pluginName].locale.views.conclusion.title});
-            conclusionBtn.data('step', 4);
+            conclusionBtn.data('step', step);
             welcomeBtn.data('stepEnabled', false);
             conclusionBtn.click(function () {
                 var button = $(this);
@@ -286,13 +325,13 @@
             $this.$header.find('.wizzy-title').html($.fn[pluginName].locale.views[view].title);
             var subtitle = $('<h4 />', {class: 'wizzy-view-title', html: $.fn[pluginName].locale.views[view].subtitle});
             var message = $('<p />', {class: 'wizzy-view-title', html: $.fn[pluginName].locale.views[view].message});
-            container.append(subtitle).append(message).append('<hr/>');
+            container.append('<hr/>').append(subtitle).append(message).append('<hr/>');
         },
-        _renderWelcomeView: function (container) {
+        _renderWelcomeView: function (container, step) {
             var $this = this;
             // Setup view
-            $this.view = $('<div />', {class: 'wizzy-welcome'});
-            $this.view.data('step', 1);
+            $this.view = $('<div />', {class: 'wizzy-view wizzy-welcome'});
+            $this.view.data('step', step);
             $this.view.data('viewName', 'welcome');
             $this._setupView($this.view, 'welcome');
             // Update navigation
@@ -312,6 +351,7 @@
                 success: function (response) {
                     $this._debug(response);
                     if (response.token !== undefined) {
+                        $this._debug('TOKEN REFRESH');
                         $('meta[name="csrf-token"]').attr('content', response.token);
                     }
 
@@ -361,20 +401,23 @@
             var extensionsSeparator = $('<h4 />', {html: $.fn[pluginName].locale.views.welcome.extensions});
             container.append($this.view.append(requirements.append(phpSeparator).append(phpList).append(extensionsSeparator).append(extensionsList)));
         },
-        _renderEnvironmentView: function (container) {
+        _renderEnvironmentView: function (container, step) {
             var $this = this;
             // Setup view
-            $this.view = $('<div />', {class: 'wizzy-environment'});
-            $this.view.data('step', 2);
+            $this.view = $('<div />', {class: 'wizzy-view wizzy-environment'});
+            $this.view.data('step', step);
             $this.view.data('viewName', 'environment');
             $this._setupView($this.view, 'environment');
 
             // Update navigation
             var attr = $this.$footer.find('.wizzy-previous-btn').attr('disabled');
 
-            if (typeof attr === typeof undefined || attr === false) {
-                $this.$footer.find('.wizzy-previous-btn').removeAttr('disabled', true);
+            if (typeof attr !== typeof undefined || attr !== false) {
+                $this.$footer.find('.wizzy-previous-btn').removeAttr('disabled', false);
             }
+
+            $this.options.interface.$btnNext.show();
+            $this.options.interface.$btnComplete.hide();
 
             // Setup view content
             var environment = $('<div />', {class: 'col-md-12 wizzy-environment'});
@@ -392,6 +435,7 @@
                 success: function (response) {
                     $this._debug(response);
                     if (response.token !== undefined) {
+                        $this._debug('TOKEN REFRESH');
                         $('meta[name="csrf-token"]').attr('content', response.token);
                     }
 
@@ -438,20 +482,23 @@
             // Append view
             container.append($this.view.append(environment.append($this.environmentForm)));
         },
-        _renderDatabaseView: function (container) {
+        _renderDatabaseView: function (container, step) {
             var $this = this;
             // Setup view
-            $this.view = $('<div />', {class: 'wizzy-database'});
-            $this.view.data('step', 3);
+            $this.view = $('<div />', {class: 'wizzy-view wizzy-database'});
+            $this.view.data('step', step);
             $this.view.data('viewName', 'database');
             $this._setupView($this.view, 'database');
 
             // Update navigation
             var attr = $this.$footer.find('.wizzy-previous-btn').attr('disabled');
 
-            if (typeof attr === typeof undefined || attr === false) {
-                $this.$footer.find('.wizzy-previous-btn').removeAttr('disabled', true);
+            if (typeof attr !== typeof undefined || attr !== false) {
+                $this.$footer.find('.wizzy-previous-btn').removeAttr('disabled', false);
             }
+
+            $this.options.interface.$btnNext.show();
+            $this.options.interface.$btnComplete.hide();
 
             // Setup view content
             var database = $('<div />', {class: 'col-md-12 wizzy-database'});
@@ -474,6 +521,7 @@
                 success: function (response) {
                     $this._debug(response);
                     if (response.token !== undefined) {
+                        $this._debug('TOKEN REFRESH');
                         $('meta[name="csrf-token"]').attr('content', response.token);
                     }
 
@@ -483,13 +531,14 @@
                     });
 
                     var refreshFormGroup = $('<div />', {class: 'form-group col-md-6'});
+                    var refreshLabel = $('<label />', {class: 'col-sm-10 control-label', html: '<input name="refresh" type="checkbox"> ' + $.fn[pluginName].locale.views.database.refresh});
+                    var refreshContainer = $('<div />', {class: 'col-sm-2'});
+                    $this.databaseForm.append(refreshFormGroup.append(refreshLabel).append(refreshContainer));
+
                     var seedFormGroup = $('<div />', {class: 'form-group col-md-6'});
-                    var refreshLabel = $('<label />', {class: 'col-sm-2 control-label', html: $.fn[pluginName].locale.views.environment.filename});
-                    var seedLabel = $('<label />', {class: 'col-sm-2 control-label', html: $.fn[pluginName].locale.views.environment.filename});
-                    var refreshContainer = $('<div />', {class: 'col-sm-10'});
-                    var seedContainer = $('<div />', {class: 'col-sm-10'});
-                    var refreshInput = $('<input />', {type: 'text', class: 'wizzy-refresh-input form-control', placeholder: $.fn[pluginName].locale.views.environment.placeholder});
-                    var seedInput = $('<input />', {type: 'text', class: 'wizzy-seed-input form-control', placeholder: $.fn[pluginName].locale.views.environment.placeholder});
+                    var seedLabel = $('<label />', {class: 'col-sm-10 control-label', html: '<input name="seed" type="checkbox"> ' + $.fn[pluginName].locale.views.database.seed});
+                    var seedContainer = $('<div />', {class: 'col-sm-2'});
+                    $this.databaseForm.append(seedFormGroup.append(seedLabel).append(seedContainer));
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     $this._error(jqXHR);
@@ -502,14 +551,24 @@
             // Append view
             container.append($this.view.append(database.append(list).append($this.databaseForm)));
         },
-        _renderConclusionView: function (container) {
+        _renderConclusionView: function (container, step) {
             var $this = this;
             // Setup view
-            $this.view = $('<div />', {class: 'wizzy-conclusion'});
-            $this.view.data('step', 4);
+            $this.view = $('<div />', {class: 'wizzy-view wizzy-conclusion'});
+            $this.view.data('step', step);
             $this.view.data('viewName', 'conclusion');
             $this._setupView($this.view, 'conclusion');
-            // Setup view content
+
+            // Update navigation
+            var attr = $this.$footer.find('.wizzy-previous-btn').attr('disabled');
+
+            if (typeof attr === typeof undefined || attr === false) {
+                $this.$footer.find('.wizzy-previous-btn').attr('disabled', true);
+            }
+
+            $this.options.interface.$btnNext.hide();
+            $this.options.interface.$btnComplete.show();
+
             // Append view
             container.append($this.view);
         },
@@ -518,7 +577,7 @@
             var $this = this;
             // Setup container
             var loading = $($this.options.loading).clone();
-            container.empty();
+            container.find('.wizzy-view').remove();
             container.append(loading);
             // Before render callback
             if (typeof beforeRenderCallback == 'function') {
@@ -529,19 +588,32 @@
             switch (type) {
                 case 1:
                     $this._debug('render welcome view');
-                    $this._renderWelcomeView(container);
+                    $this._renderWelcomeView(container, type);
                     break;
                 case 2:
-                    $this._debug('render environment view');
-                    $this._renderEnvironmentView(container);
+                    if ($this.options.environment) {
+                        $this._debug('render environment view');
+                        $this._renderEnvironmentView(container, type);
+                    } else if ($this.options.database) {
+                        $this._debug('render database view');
+                        $this._renderDatabaseView(container, type);
+                    } else {
+                        $this._debug('render conclusion view');
+                        $this._renderConclusionView(container, type);
+                    }
                     break;
                 case 3:
-                    $this._debug('render database view');
-                    $this._renderDatabaseView(container);
+                    if ($this.options.database) {
+                        $this._debug('render database view');
+                        $this._renderDatabaseView(container, type);
+                    } else {
+                        $this._debug('render conclusion view');
+                        $this._renderConclusionView(container, type);
+                    }
                     break;
                 case 4:
                     $this._debug('render conclusion view');
-                    $this._renderConclusionView(container);
+                    $this._renderConclusionView(container, type);
                     break;
                 default:
                     $this._error('undefined view :(');

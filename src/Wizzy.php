@@ -107,6 +107,15 @@ class Wizzy
     }
 
     /**
+     * Get wizzy route group prefix
+     */
+    public static function getRedirectUrl()
+    {
+        $config_repository = app()->app['config'];
+        return $config_repository->get('wizzy.redirectTo', '/');
+    }
+
+    /**
      * Check if wizzy is enabled from the config file.
      *
      * @return boolean
@@ -212,15 +221,9 @@ class Wizzy
 
         fclose($file);
 
-        // make sure all environment clear.
-        foreach (array_keys($_ENV) as $key) {
-            putenv($key);
-            unset($_ENV[$key]);
-            unset($_SERVER[$key]);
-        }
-
-        $dotenv = new Dotenv(base_path(), $filename);
-        $dotenv->load(base_path(), $filename);
+        // reset config
+        Artisan::call('config:clear');
+        Artisan::call('config:cache');
 
         return $filename;
     }
@@ -232,17 +235,13 @@ class Wizzy
 
         $force_flag = $config_repository->get('wizzy.foce_flag');
 
-        info(env('DB_DATABASE'));
-
         // Check database refresh
         if ($refresh_database) {
-            $refresh_database_result = Artisan::call('migrate:refresh', array('--seed' => $seed_database));
-            info($refresh_database_result);
+            Artisan::call('migrate:refresh', ['--seed' => $seed_database]);
         } else {
             // Call migrations
-            $migrate_result = Artisan::call('migrate', array('--path' => $path, '--force' => $force_flag));
+            Artisan::call('migrate', ['--path' => $path, '--force' => $force_flag]);
         }
-        info($migrate_result);
     }
 
     public static function getMigrationsList($path)
@@ -255,25 +254,6 @@ class Wizzy
         }
 
         return $files;
-    }
-
-    /**
-     * Empty current environment
-     * @return void
-     */
-    private function emptyEnvironment()
-    {
-
-    }
-
-    /**
-     * Load the .env(.example) file
-     * @param  boolean $isExample
-     * @return array
-     */
-    private function loadDotEnv($filename)
-    {
-
     }
 
 }

@@ -11,6 +11,7 @@
 
 namespace IlGala\LaravelWizzy;
 
+use App;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -36,12 +37,13 @@ class WizzyController extends BaseController
 
     public function __construct()
     {
-        info(env('DB_DATABASE'));
         $this->wizzy = app('wizzy');
     }
 
     public function index(Request $request)
     {
+        $request->session()->flush();
+
         if ($request->ajax()) {
             $version = $this->wizzy->checkPHPVersion();
             $extensions = $this->wizzy->checkPHPExstensions();
@@ -54,7 +56,10 @@ class WizzyController extends BaseController
                 }
             }
 
-            return response()->json(compact('version', 'extensions', 'nextEnabled'));
+            // refresh token
+            $token = csrf_token();
+
+            return response()->json(compact('token', 'version', 'extensions', 'nextEnabled'));
         }
 
 
@@ -71,14 +76,19 @@ class WizzyController extends BaseController
         if (session()->get('wizzy.envfile', null) !== null) {
             $envPath = base_path(session()->get('wizzy.envfile'));
         } else {
-            $envPath = base_path('.env.example');
+            $configRepository = app()->app['config'];
+
+            $envPath = base_path($configRepository->get('wizzy.environment'));
         }
 
         $filename = explode('.', $envPath)[1] == 'env' ? '' : explode('.', $envPath)[1];
 
         $env_variables = $this->wizzy->fromEnvToArray($envPath);
 
-        return response()->json(compact('filename', 'env_variables'));
+        // refresh token
+        $token = csrf_token();
+
+        return response()->json(compact('token', 'filename', 'env_variables'));
     }
 
     public function database(Request $request)
@@ -90,7 +100,10 @@ class WizzyController extends BaseController
         $configRepository = app()->app['config'];
         $migrations = Wizzy::getMigrationsList($configRepository->get('wizzy.migrations_path'));
 
-        return response()->json(compact('migrations'));
+        // refresh token
+        $token = csrf_token();
+
+        return response()->json(compact('token', 'migrations'));
     }
 
     public function conclusion(Request $request)
@@ -131,20 +144,26 @@ class WizzyController extends BaseController
 
         session()->put('wizzy.envfile', $filename);
 
-        return response()->json(compact('success', 'message'));
+        // refresh token
+        $token = csrf_token();
+
+        return response()->json(compact('token', 'success', 'message'));
     }
 
     private function runMigrations(Request $request)
     {
         $configRepository = app()->app['config'];
-        $migrations_path = Wizzy::getMigrationsList($configRepository->get('wizzy.migrations_path'));
+        $migrations_path = $configRepository->get('wizzy.migrations_path');
 
         $refresh_database = $request->get('refresh', false);
         $seed_database = $request->get('seed', false);
 
         Wizzy::runMigration($migrations_path, $refresh_database, $seed_database);
 
-        return response()->json(compact('success', 'message'));
+        // refresh token
+        $token = csrf_token();
+
+        return response()->json(compact('token', 'success', 'message'));
     }
 
 }
