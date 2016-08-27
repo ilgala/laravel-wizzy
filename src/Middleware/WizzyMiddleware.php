@@ -11,17 +11,17 @@
 
 namespace IlGala\LaravelWizzy\Middleware;
 
-use IlGala\LaravelWizzy\Wizzy;
 use Closure;
+use IlGala\LaravelWizzy\Wizzy;
 
 class WizzyMiddleware
 {
-
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure                 $next
+     *
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -32,11 +32,10 @@ class WizzyMiddleware
             $wizzy_enabled = Wizzy::isWizzyEnabled() == 'true';
         }
 
-        if ($wizzy_enabled && !$request->is(Wizzy::getPrefix() . '/*')) {
-            return redirect()->route(Wizzy::getPrefix() . '.wizzy');
+        if ($wizzy_enabled && !$request->is(Wizzy::getPrefix().'/*')) {
+            return redirect()->route(Wizzy::getPrefix().'.wizzy');
         }
 
         return $next($request);
     }
-
 }

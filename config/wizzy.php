@@ -19,8 +19,8 @@ return [
      */
     'system_requirements' => [
         'php' => [
-            'required' => '5.5.9',
-            'preferred' => '5.5.9'
+            'required'  => '5.5.9',
+            'preferred' => '5.5.9',
         ],
         'php_extensions' => [
             'OpenSSL',
@@ -29,18 +29,18 @@ return [
             'Tokenizer',
         ],
         'permissions' => [
-            'storage/app/' => '775',
+            'storage/app/'       => '775',
             'storage/framework/' => '775',
-            'storage/logs/' => '775',
-            'bootstrap/cache/' => '775'
-        ]
+            'storage/logs/'      => '775',
+            'bootstrap/cache/'   => '775',
+        ],
     ],
     /*
      * Enable/disable wizard steps
      */
     'steps' => [
         'environment' => true,
-        'database' => true,
+        'database'    => true,
     ],
     /*
      * Wizzy route group prefix
@@ -61,5 +61,5 @@ return [
     /*
      * Redirect route after complete
      */
-    'redirectTo' => '/'
+    'redirectTo' => '/',
 ];

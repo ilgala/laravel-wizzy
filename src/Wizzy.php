@@ -13,16 +13,14 @@ namespace IlGala\LaravelWizzy;
 
 use Artisan;
 use File;
-use Dotenv\Dotenv;
 
 /**
- * Description of Wizzy
+ * Description of Wizzy.
  *
  * @author ilgala
  */
 class Wizzy
 {
-
     /**
      * Config repository.
      *
@@ -89,36 +87,39 @@ class Wizzy
     }
 
     /**
-     * Get wizzy route group prefix
+     * Get wizzy route group prefix.
      */
     public static function getPrefix()
     {
         $config_repository = app()->app['config'];
+
         return $config_repository->get('wizzy.prefix', '');
     }
 
     /**
-     * Get wizzy route group prefix
+     * Get wizzy route group prefix.
      */
     public static function getDefaultEnv()
     {
         $config_repository = app()->app['config'];
+
         return $config_repository->get('wizzy.enviroment', '.env.example');
     }
 
     /**
-     * Get wizzy route group prefix
+     * Get wizzy route group prefix.
      */
     public static function getRedirectUrl()
     {
         $config_repository = app()->app['config'];
+
         return $config_repository->get('wizzy.redirectTo', '/');
     }
 
     /**
      * Check if wizzy is enabled from the config file.
      *
-     * @return boolean
+     * @return bool
      */
     public static function isWizzyEnabled()
     {
@@ -153,9 +154,9 @@ class Wizzy
         $preferred_version = ($temp_preferred_version[0] * 10000 + $temp_preferred_version[1] * 100 + $temp_preferred_version[2]);
 
         return [
-            'required' => ($version < $required_version),
+            'required'  => ($version < $required_version),
             'preferred' => ($version < $preferred_version),
-            'version' => ($version < $required_version ? $this->config_repository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->config_repository->get('wizzy.system_requirements.php.preferred') : '')
+            'version'   => ($version < $required_version ? $this->config_repository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->config_repository->get('wizzy.system_requirements.php.preferred') : ''),
         ];
     }
 
@@ -216,7 +217,7 @@ class Wizzy
                 $config_repository = app()->app['config'];
             }
 
-            fwrite($file, $exploded_variable[0] . "=" . $exploded_variable[1] . "\n");
+            fwrite($file, $exploded_variable[0].'='.$exploded_variable[1]."\n");
         }
 
         fclose($file);
@@ -255,5 +256,4 @@ class Wizzy
 
         return $files;
     }
-
 }

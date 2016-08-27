@@ -2,9 +2,9 @@
 
 return [
     'steps' => [
-        'welcome' => '',
+        'welcome'     => '',
         'environment' => '',
-        'database' => '',
-        'conclusion' => '',
-    ]
+        'database'    => '',
+        'conclusion'  => '',
+    ],
 ];
