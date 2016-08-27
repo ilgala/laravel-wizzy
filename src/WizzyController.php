@@ -12,25 +12,22 @@
 namespace IlGala\LaravelWizzy;
 
 use App;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
+use IlGala\LaravelWizzy\Exception\WizzyException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesResources;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
-use App\Http\Requests;
-use IlGala\LaravelWizzy\Exception\WizzyException;
+use Illuminate\Routing\Controller as BaseController;
 
 class WizzyController extends BaseController
 {
-
     use AuthorizesRequests,
         AuthorizesResources,
         DispatchesJobs,
         ValidatesRequests;
 
     /**
-     *
      * @var \IlGala\LaravelWizzy\Wizzy
      */
     protected $wizzy;
@@ -69,7 +66,7 @@ class WizzyController extends BaseController
     public function environment(Request $request)
     {
         if (!$request->ajax()) {
-            throw new WizzyException("Method not allowed", 401);
+            throw new WizzyException('Method not allowed', 401);
         }
 
         // Recover environment file
@@ -94,7 +91,7 @@ class WizzyController extends BaseController
     public function database(Request $request)
     {
         if (!$request->ajax()) {
-            throw new WizzyException("Method not allowed", 401);
+            throw new WizzyException('Method not allowed', 401);
         }
 
         $configRepository = app()->app['config'];
@@ -109,7 +106,7 @@ class WizzyController extends BaseController
     public function conclusion(Request $request)
     {
         if (!$request->ajax()) {
-            throw new WizzyException("Method not allowed", 401);
+            throw new WizzyException('Method not allowed', 401);
         }
 
         // WIZZY_ENABLED FALSE
@@ -120,7 +117,7 @@ class WizzyController extends BaseController
     public function execute(Request $request)
     {
         if (!$request->has('view')) {
-            throw new WizzyException("No view defined", 500);
+            throw new WizzyException('No view defined', 500);
         }
 
         switch ($request->get('view')) {
@@ -129,14 +126,14 @@ class WizzyController extends BaseController
             case 'database':
                 return $this->runMigrations($request);
             default:
-                throw new WizzyException("Undefined view", 500);
+                throw new WizzyException('Undefined view', 500);
         }
     }
 
     private function storeEnvironmentSettings(Request $request)
     {
         $this->validate($request, [
-            'variables' => 'required'
+            'variables' => 'required',
         ]);
 
         // Setup filename
@@ -165,5 +162,4 @@ class WizzyController extends BaseController
 
         return response()->json(compact('token', 'success', 'message'));
     }
-
 }
