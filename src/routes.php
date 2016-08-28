@@ -12,9 +12,9 @@
 use IlGala\LaravelWizzy\Wizzy;
 
 Route::group(['prefix' => Wizzy::getPrefix(), 'namespace' => 'IlGala\LaravelWizzy', 'middleware' => 'web'], function () {
-    Route::get('wizzy', ['as' => Wizzy::getPrefix() . '.wizzy', 'uses' => 'WizzyController@index']);
-    Route::get('environment', ['as' => Wizzy::getPrefix() . '.environment', 'uses' => 'WizzyController@environment']);
-    Route::get('database', ['as' => Wizzy::getPrefix() . '.database', 'uses' => 'WizzyController@database']);
-    Route::get('conclusion', ['as' => Wizzy::getPrefix() . '.conclusion', 'uses' => 'WizzyController@conclusion']);
-    Route::post('execute', ['as' => Wizzy::getPrefix() . '.execute', 'uses' => 'WizzyController@execute']);
+    Route::get('wizzy', ['as' => Wizzy::getPrefix().'.wizzy', 'uses' => 'WizzyController@index']);
+    Route::get('environment', ['as' => Wizzy::getPrefix().'.environment', 'uses' => 'WizzyController@environment']);
+    Route::get('database', ['as' => Wizzy::getPrefix().'.database', 'uses' => 'WizzyController@database']);
+    Route::get('conclusion', ['as' => Wizzy::getPrefix().'.conclusion', 'uses' => 'WizzyController@conclusion']);
+    Route::post('execute', ['as' => Wizzy::getPrefix().'.execute', 'uses' => 'WizzyController@execute']);
 });

@@ -27,7 +27,6 @@ use Illuminate\Routing\Controller as BaseController;
  */
 class WizzyController extends BaseController implements WizzyInterface
 {
-
     use AuthorizesRequests,
         AuthorizesResources,
         DispatchesJobs,
@@ -83,8 +82,10 @@ class WizzyController extends BaseController implements WizzyInterface
      * Wizzy environment step action.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     *
      * @throws WizzyException
+     *
+     * @return \Illuminate\Http\Response
      */
     public function environment(Request $request)
     {
@@ -115,8 +116,10 @@ class WizzyController extends BaseController implements WizzyInterface
      * Wizzy database step action.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     *
      * @throws WizzyException
+     *
+     * @return \Illuminate\Http\Response
      */
     public function database(Request $request)
     {
@@ -137,8 +140,10 @@ class WizzyController extends BaseController implements WizzyInterface
      * Wizzy conclusion step action.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     *
      * @throws WizzyException
+     *
+     * @return \Illuminate\Http\Response
      */
     public function conclusion(Request $request)
     {
@@ -176,8 +181,10 @@ class WizzyController extends BaseController implements WizzyInterface
      * Wizzy custom actions.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     *
      * @throws WizzyException
+     *
+     * @return \Illuminate\Http\Response
      */
     public function execute(Request $request)
     {
@@ -199,8 +206,10 @@ class WizzyController extends BaseController implements WizzyInterface
      * Wizzy store environment variables action.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     *
      * @throws WizzyException
+     *
+     * @return \Illuminate\Http\Response
      */
     private function storeEnvironmentSettings(Request $request)
     {
@@ -223,8 +232,10 @@ class WizzyController extends BaseController implements WizzyInterface
      * Wizzy run migration action.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     *
      * @throws WizzyException
+     *
+     * @return \Illuminate\Http\Response
      */
     private function runMigrations(Request $request)
     {
@@ -241,5 +252,4 @@ class WizzyController extends BaseController implements WizzyInterface
 
         return response()->json(compact('token', 'success', 'message'));
     }
-
 }
