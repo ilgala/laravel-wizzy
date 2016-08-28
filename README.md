@@ -26,7 +26,7 @@ Instead, you may of course manually update your require block and run `composer 
 ```json
 {
     "require": {
-        "ilgala/wizzy": "^1.0"
+        "ilgala/wizzy": "dev-master"
     }
 }
 ```

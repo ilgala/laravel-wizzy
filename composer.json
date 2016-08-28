@@ -10,7 +10,6 @@
             "email": "filippo.galante@b-ground.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php": ">=5.5.9",
         "laravel/framework": "5.*"
