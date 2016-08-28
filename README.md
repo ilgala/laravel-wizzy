@@ -1,6 +1,9 @@
 Laravel-wizzy
 ============
 Laravel-wizzy was created by, and is maintained by [Filippo Galante](https://github.com/IlGala), and is a configurable laravel install wizard that permits a user to check system requirements, setup environment and run database migrations and seed. Feel free to check out the [change log](CHANGELOG.md), [releases](https://github.com/IlGala/laravel-wizzy/releases), [license](LICENSE), and [contribution guidelines](CONTRIBUTING.md).
+
+[![StyleCI](https://styleci.io/repos/66010854/shield)](https://styleci.io/repos/66010854)
+
 ## Installation
 
 Requirements:
