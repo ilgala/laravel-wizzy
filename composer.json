@@ -1,6 +1,8 @@
 {
     "name": "ilgala/laravel-wizzy",
+    "type": "package",
     "description": "A laravel install wizard",
+    "keywords": ["laravel","package","install","wizard","jquery"],
     "license": "MIT",
     "authors": [
         {
