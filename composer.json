@@ -15,9 +15,23 @@
         "php": ">=5.5.9",
         "laravel/framework": "5.*"
     },    
+    "require-dev": {
+        "php": ">=5.5.9",
+        "laravel/framework": "5.*"
+    },
     "autoload": {
         "psr-4": {
             "IlGala\\LaravelWizzy\\": "src/"
         }
-    }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "IlGala\\LaravelWizzy\\": "src/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
