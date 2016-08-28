@@ -21,7 +21,6 @@ use IlGala\LaravelWizzy\Wizzy;
  */
 class WizzyMiddleware
 {
-
     /**
      * Handle an incoming request.
      *
@@ -38,14 +37,13 @@ class WizzyMiddleware
             $wizzy_enabled = Wizzy::isWizzyEnabled() == 'true';
         }
 
-        if ($wizzy_enabled && !$request->is(Wizzy::getPrefix() . '/*')) {
+        if ($wizzy_enabled && !$request->is(Wizzy::getPrefix().'/*')) {
             // Redirect to wizard
-            return redirect()->route(Wizzy::getPrefix() . '.wizzy');
-        } else if (session()->has('wizzy.envfile')) {
+            return redirect()->route(Wizzy::getPrefix().'.wizzy');
+        } elseif (session()->has('wizzy.envfile')) {
             session()->forget('wizzy.envfile');
         }
 
         return $next($request);
     }
-
 }
