@@ -1,6 +1,8 @@
 {
     "name": "ilgala/laravel-wizzy",
+    "type": "package",
     "description": "A laravel install wizard",
+    "keywords": ["laravel","package","install","wizard","jquery"],
     "license": "MIT",
     "authors": [
         {
@@ -8,11 +10,27 @@
             "email": "filippo.galante@b-ground.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {},    
+    "require": {
+        "php": ">=5.5.9",
+        "laravel/framework": "5.*"
+    },    
+    "require-dev": {
+        "php": ">=5.5.9",
+        "laravel/framework": "5.*"
+    },
     "autoload": {
         "psr-4": {
             "IlGala\\LaravelWizzy\\": "src/"
         }
-    }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "IlGala\\LaravelWizzy\\": "src/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

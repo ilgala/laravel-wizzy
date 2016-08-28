@@ -1,6 +1,13 @@
 Laravel-wizzy
 ============
 Laravel-wizzy was created by, and is maintained by [Filippo Galante](https://github.com/IlGala), and is a configurable laravel install wizard that permits a user to check system requirements, setup environment and run database migrations and seed. Feel free to check out the [change log](CHANGELOG.md), [releases](https://github.com/IlGala/laravel-wizzy/releases), [license](LICENSE), and [contribution guidelines](CONTRIBUTING.md).
+
+[![StyleCI](https://styleci.io/repos/66010854/shield)](https://styleci.io/repos/66010854)
+[![Latest Stable Version](https://poser.pugx.org/ilgala/laravel-wizzy/v/stable)](https://packagist.org/packages/ilgala/laravel-wizzy)
+[![Total Downloads](https://poser.pugx.org/ilgala/laravel-wizzy/downloads)](https://packagist.org/packages/ilgala/laravel-wizzy)
+[![Latest Unstable Version](https://poser.pugx.org/ilgala/laravel-wizzy/v/unstable)](https://packagist.org/packages/ilgala/laravel-wizzy)
+[![License](https://poser.pugx.org/ilgala/laravel-wizzy/license)](https://packagist.org/packages/ilgala/laravel-wizzy)
+
 ## Installation
 
 Requirements:
@@ -19,7 +26,7 @@ Instead, you may of course manually update your require block and run `composer 
 ```json
 {
     "require": {
-        "ilgala/wizzy": "^1.0"
+        "ilgala/wizzy": "dev-master"
     }
 }
 ```

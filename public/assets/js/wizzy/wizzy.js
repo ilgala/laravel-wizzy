@@ -18,7 +18,7 @@
                     $btnComplete: $('<a />', {class: 'btn btn-default wizzy-next-btn', disabled: true}),
                 }
             },
-    DEBUG = true;
+    DEBUG = false;
     // The plugin constructor
     function Wizzy(element, options) {
         this.element = element;
