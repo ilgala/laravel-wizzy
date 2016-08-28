@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Laravel Wizzy by IlGala</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Laravel Wizzy</h1>
+        <h2>A laravel install wizard</h2>
+        <a href="https://github.com/IlGala/laravel-wizzy" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="laravel-wizzy" class="anchor" href="#laravel-wizzy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Laravel-wizzy</h1>
+
+<p>Laravel-wizzy was created by, and is maintained by <a href="https://github.com/IlGala">Filippo Galante</a>, and is a configurable laravel install wizard that permits a user to check system requirements, setup environment and run database migrations and seed. Feel free to check out the <a href="CHANGELOG.md">change log</a>, <a href="https://github.com/IlGala/laravel-wizzy/releases">releases</a>, <a href="LICENSE">license</a>, and <a href="CONTRIBUTING.md">contribution guidelines</a>.</p>
+
+<p><a href="https://styleci.io/repos/66010854"><img src="https://styleci.io/repos/66010854/shield" alt="StyleCI"></a>
+<a href="https://packagist.org/packages/ilgala/laravel-wizzy"><img src="https://poser.pugx.org/ilgala/laravel-wizzy/v/stable" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/ilgala/laravel-wizzy"><img src="https://poser.pugx.org/ilgala/laravel-wizzy/downloads" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/ilgala/laravel-wizzy"><img src="https://poser.pugx.org/ilgala/laravel-wizzy/v/unstable" alt="Latest Unstable Version"></a>
+<a href="https://packagist.org/packages/ilgala/laravel-wizzy"><img src="https://poser.pugx.org/ilgala/laravel-wizzy/license" alt="License"></a></p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Requirements:</p>
+
+<ul>
+<li>PHP 5.5+</li>
+<li>Laravel</li>
+</ul>
+
+<p>To get the latest version of Laravel Wizzy, simply require the project using <a href="https://getcomposer.org">Composer</a>:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ composer require ilgala/wizzy</pre></div>
+
+<p>Instead, you may of course manually update your require block and run <code>composer update</code> if you so choose:</p>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>require<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>ilgala/wizzy<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>dev-master<span class="pl-pds">"</span></span>
+    }
+}</pre></div>
+
+<p>Once Laravel Wizzy is installed, you need to register the service provider. Open up <code>config/app.php</code> and add the following to the <code>providers</code> key.</p>
+
+<ul>
+<li><code>IlGala\LaravelWizzy\WizzyServiceProvider::class</code></li>
+</ul>
+
+<p>You can register the Wizzy facade in the <code>aliases</code> key of your <code>config/app.php</code> file if you like.</p>
+
+<ul>
+<li><code>'Wizzy' =&gt; 'IlGala\LaravelWizzy\Facades\Wizzy'</code></li>
+</ul>
+
+<h2>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration</h2>
+
+<p>Laravel Wizzy supports optional configuration.</p>
+
+<p>To get started, you'll need to publish all vendor assets:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ php artisan vendor:publish</pre></div>
+
+<p>This will create a <code>config/wizzy.php</code> file in your app that you can modify to set your configuration. The <code>publish</code> command will also copy the package's views and the <code>public/assets</code> folder. Also, make sure you check for changes to the original config file in this package between releases.</p>
+
+<p>There are several config options:</p>
+
+<h5>
+<a id="wizzy-enable-flag" class="anchor" href="#wizzy-enable-flag" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Wizzy Enable flag</h5>
+
+<p>This option specifies if the wizzy is enabled and will be considered only if the .env file doesn't contain any WIZZY_ENABLED key.</p>
+
+<pre><code>Default: true
+</code></pre>
+
+<h5>
+<a id="application-system-requirements" class="anchor" href="#application-system-requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Application System Requirements</h5>
+
+<p>This set of options specifies the application requirements for php and the filesystem permissions. Only the required PHP version is mandatory forthe wizard.</p>
+
+<pre><code>Default values
+    'php' =&gt; [
+        'required' =&gt; 'x.x.x', // Default: laravel required version
+        'preferred' =&gt; 'x.x.x', // Default: laravel required version
+    ],
+    'php_extensions' =&gt; [ // Default: laravel required extensions
+        'OpenSSL',
+        'PDO',
+        'Mbstring',
+        'Tokenizer',
+    ],
+    'permissions' =&gt; [ // Default: laravel filesystem permissions
+        'storage/app/' =&gt; '775',
+        'storage/framework/' =&gt; '775',
+        'storage/logs/' =&gt; '775',
+        'bootstrap/cache/' =&gt; '775',
+    ],
+],
+</code></pre>
+
+<h5>
+<a id="wizzy-steps" class="anchor" href="#wizzy-steps" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Wizzy Steps</h5>
+
+<p>This set of options specifies if the environment view and the database view are enabled in the wizard. If the parameters are setted to false, the wizard will skip one or both steps.</p>
+
+<pre><code>environment default: true
+database default: true
+</code></pre>
+
+<h5>
+<a id="wizzy-routes-prefix" class="anchor" href="#wizzy-routes-prefix" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Wizzy Routes Prefix</h5>
+
+<p>This option specifies Wizzy's routes group prefix in order to avoid conflicts with other routes of the application.</p>
+
+<pre><code>Default: install
+</code></pre>
+
+<h5>
+<a id="environment-filename" class="anchor" href="#environment-filename" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Environment Filename</h5>
+
+<p>Application's environment file used to parse the environment variables.</p>
+
+<pre><code>Default: .env
+</code></pre>
+
+<h5>
+<a id="migrations-path" class="anchor" href="#migrations-path" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Migrations Path</h5>
+
+<p>Application's path to migrations files.</p>
+
+<pre><code>Default: database/migrations
+</code></pre>
+
+<h5>
+<a id="force-flag" class="anchor" href="#force-flag" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Force Flag</h5>
+
+<p>If this option is setted to true, the migration command will be runned with --force attribute.</p>
+
+<pre><code>Default: false
+</code></pre>
+
+<h5>
+<a id="conclusion-scripts" class="anchor" href="#conclusion-scripts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conclusion Scripts</h5>
+
+<p>This set of options contains all the artisan scripts that will be runned during the last step of the wizard.</p>
+
+<p>The defaults scripts runned are:</p>
+
+<ul>
+<li>
+<strong>clear-compiled:</strong> Remove the compiled class file</li>
+<li>
+<strong>optimize:</strong> Optimize the framework for better performance</li>
+<li>
+<strong>config:clear:</strong> Remove the configuration cache file</li>
+<li>
+<strong>config:cache:</strong> Create a cache file for faster configuration loading</li>
+</ul>
+
+<p>For more informations about the artisan commands please refer to the official documentation.</p>
+
+<h5>
+<a id="redirect-to" class="anchor" href="#redirect-to" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Redirect To</h5>
+
+<p>This is the url used to redirect the user when the application install process is completed.</p>
+
+<pre><code>Default: /
+</code></pre>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<h5>
+<a id="facadeswizzy" class="anchor" href="#facadeswizzy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Facades\Wizzy</h5>
+
+<p>This facade will dynamically pass static method calls to the 'wizzy' object in the ioc container which by default is the <code>IlGala\LaravelWizzy\Wizzy</code> class. This facade may be also used for a custom wizard creation. The declared methods may be used as helpers function for creating environment files, run database migrations or artisan commands.</p>
+
+<pre><code>/**
+ * Get wizzy route group prefix from the config file.
+ *
+ * @return string wizzy.prefix
+ */
+Wizzy::getPrefix();
+
+/**
+ * Get wizzy default evnironment filename from the config file.
+ *
+ * @return string wizzy.environment
+ */
+Wizzy::getDefaultEnv();
+
+/**
+ * Get wizzy conclusion view redirect url from the config file.
+ *
+ * @return string wizzy.redirectTo
+ */
+Wizzy::getRedirectUrl();
+
+/**
+ * Check if wizzy is enabled from the config file.
+ *
+ * @return bool true|false
+ */
+Wizzy::isWizzyEnabled();
+
+/**
+ * Check if wizzy environment step is enabled from the config file.
+ *
+ * @return string wizzy.steps.environment
+ */
+Wizzy::isEnvironmentStepEnabled();
+
+/**
+ * Check if wizzy database step is enabled from the config file.
+ *
+ * @return string wizzy.steps.database
+ */
+Wizzy::isDatabaseStepEnabled();
+
+/**
+ * Stores the $variables array as an environment file. If the $wizzy_enabled
+ * variable is true, then it will add WIZZY_ENABLED=false variable in the
+ * .env file.
+ *
+ * @param string $filename
+ * @param string $variables
+ * @param boolean $wizzy_enabled
+ * @return string filename
+ */
+Wizzy::($filename, $variables, $wizzy_enabled = false);
+
+/**
+ * Runs the artisan 'migrate' command.
+ *
+ * @param string $path
+ * @param boolean $refresh_database
+ * @param boolean $seed_database
+ */
+Wizzy::runMigration($path, $refresh_database, $seed_database);
+
+/**
+ * Retrieve all the migration files in the given path.
+ *
+ * @param type $path
+ * @return array
+ */
+Wizzy::getMigrationsList($path);
+
+/**
+ * Runs an artisan command.
+ *
+ * @param type $command
+ * @param type $attributes
+ * @return void
+ */
+Wizzy::artisanCall($command, $attributes = []);
+</code></pre>
+
+<h5>
+<a id="wizzyserviceprovider" class="anchor" href="#wizzyserviceprovider" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>WizzyServiceProvider</h5>
+
+<p>This class contains no public methods of interest. This class should be added to the providers array in <code>config/app.php</code>. This class will setup ioc bindings.</p>
+
+<h5>
+<a id="wizzymiddleware" class="anchor" href="#wizzymiddleware" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>WizzyMiddleware</h5>
+
+<p>Wizzy includes a middleware used to redirect the application routes to the installation wizard. In order to enable the redirection, you have to register the middleware as global in the app/Http/Kernel.php file like this:</p>
+
+<pre><code>&lt;?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'web' =&gt; [
+            // Other middlewares
+            // Register laravel wizzy as global middleware
+            \IlGala\LaravelWizzy\Middleware\WizzyMiddleware::class,
+        ],
+        'api' =&gt; [
+            'throttle:60,1',
+        ],
+    ];
+</code></pre>
+
+<p>Otherwise you can register the middleware as individual and select which routes of your application may run the wizard.</p>
+
+<pre><code>    /**
+     * The application's route middleware.
+     *
+     * These middleware may be assigned to groups or used individually.
+     *
+     * @var array
+     */
+    protected $routeMiddleware = [
+        // Other middlewares
+        // Register laravel wizzy as individual middleware
+        'wizzy' =&gt; \IlGala\LaravelWizzy\Middleware\WizzyMiddleware::class,
+    ];
+
+}
+</code></pre>
+
+<h5>
+<a id="wizzycontroller-and-wizzyinterface" class="anchor" href="#wizzycontroller-and-wizzyinterface" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>WizzyController and WizzyInterface</h5>
+
+<p>The <code>WizzyInterface</code> can be used to create a <code>CustomWizardController</code> that may be called by the ajax calls of the jQueryPlugin.</p>
+
+<h6>
+<a id="routesphp" class="anchor" href="#routesphp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>routes.php</h6>
+
+<pre><code>Route::group(['prefix' =&gt; Wizzy::getPrefix(), 'namespace' =&gt; 'IlGala\LaravelWizzy', 'middleware' =&gt; 'web'], function () {
+    Route::get('wizzy', ['as' =&gt; Wizzy::getPrefix() . '.wizzy', 'uses' =&gt; 'WizzyController@index']);
+    Route::get('environment', ['as' =&gt; Wizzy::getPrefix() . '.environment', 'uses' =&gt; 'WizzyController@environment']);
+    Route::get('database', ['as' =&gt; Wizzy::getPrefix() . '.database', 'uses' =&gt; 'WizzyController@database']);
+    Route::get('conclusion', ['as' =&gt; Wizzy::getPrefix() . '.conclusion', 'uses' =&gt; 'WizzyController@conclusion']);
+    Route::post('execute', ['as' =&gt; Wizzy::getPrefix() . '.execute', 'uses' =&gt; 'WizzyController@execute']);
+});
+</code></pre>
+
+<h6>
+<a id="indexrequest-request" class="anchor" href="#indexrequest-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>index(Request $request)</h6>
+
+<p>This method is called when the first wizard step is created. Required output for the jQuery plugin:</p>
+
+<ul>
+<li>
+<code>version</code>: 
+<code>
+array [
+    'required' =&gt; true|false,
+    'preferred' =&gt; true|false,
+    'version' =&gt; current_version|preferred_version|empty string
+];
+</code>
+</li>
+<li>
+<code>extensions</code>: 
+<code>
+array [
+    'ext1' =&gt; false|ext1 version,
+    'ext2' =&gt; false|ext2 version,
+    'ext3' =&gt; false|ext3 version,
+    [...]
+];
+</code>
+</li>
+<li>
+<p><code>nextEnabled</code>: </p>
+
+<pre><code>true|false
+</code></pre>
+</li>
+</ul>
+
+<h6>
+<a id="environmentrequest-request" class="anchor" href="#environmentrequest-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>environment(Request $request)</h6>
+
+<p>This method is called when the environment wizard step is created. Required output for the jQuery plugin:</p>
+
+<ul>
+<li>
+<code>filename</code>: 
+<code>
+string
+</code>
+</li>
+<li>
+<p><code>env_variables</code>: </p>
+
+<pre><code>array [
+    'key' =&gt; 'variable value',
+    'key' =&gt; 'variable value',
+    'key' =&gt; 'variable value',
+    'key' =&gt; 'variable value',
+];
+</code></pre>
+
+<h6>
+<a id="databaserequest-request" class="anchor" href="#databaserequest-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>database(Request $request)</h6>
+
+<p>This method is called when the database wizard step is created. Required output for the jQuery plugin:</p>
+</li>
+<li>
+<p><code>migrations</code>: </p>
+
+<pre><code>array [
+    'migration name or migration filename',
+    'migration name or migration filename',
+    'migration name or migration filename',
+    'migration name or migration filename',
+];
+</code></pre>
+</li>
+</ul>
+
+<h6>
+<a id="conclusionrequest-request" class="anchor" href="#conclusionrequest-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>conclusion(Request $request)</h6>
+
+<p>This method is called when the conclusion wizard step is created. The jQuery plugin doesn't require any output.</p>
+
+<h6>
+<a id="executerequest-request" class="anchor" href="#executerequest-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>execute(Request $request)</h6>
+
+<p>This method is called from the Wizzy jQuery plugin to store the environment variables and run the database migration. The ajax call data object contains the following keys:</p>
+
+<ul>
+<li>Enviornment
+<code>
+data = {
+    view: 'environment',
+    filename: 'filename',                           &lt;-- default .env
+    variables: 'key:value|key:value|key:value'      &lt;-- default pattern
+};
+</code>
+</li>
+<li>Enviornment
+<code>
+data = {
+    view: 'database',
+    refresh: true|false,            &lt;-- use to run migrate:refresh command
+    seed: true|false,               &lt;-- migrate:refresh --seed
+};
+</code>
+</li>
+</ul>
+
+<h5>
+<a id="views" class="anchor" href="#views" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Views</h5>
+
+<p>This package is composed of three views:</p>
+
+<ul>
+<li>
+<code>index.blade.php</code>: This view has the same structure of the default views genereted with the <code>make:auth</code> command.</li>
+<li>
+<code>confirm_environment.blade.php</code>: The environment variables confirmation modal.</li>
+<li>
+<code>confirm_database.blade.php</code>: The database migration start modal.</li>
+</ul>
+
+<p>The package's views are stored in <code>resources/views/vendor/wizzy</code>.</p>
+
+<h5>
+<a id="wizzy-plugin" class="anchor" href="#wizzy-plugin" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Wizzy plugin</h5>
+
+<p>The front-end jQuery plugin has been created using multiple patterns from <a href="https://jqueryboilerplate.com/">jQuery Boilerplate</a>. The plugin will initialize the wizard, manage the navigation between the steps and call the back-end using <code>$.ajax</code> calls.</p>
+
+<p>The plugin is stored in <code>public/assets/js/wizzy</code> folder:</p>
+
+<pre><code>public/assets/js/wizzy
+|-- css                 &lt;-- Plugin css folder
+|   |-- wizzy.css
+|-- i18n                &lt;-- Plugin locale folder
+|   |-- en.js
+|   |-- it.js
+|   |-- [...]
+|-- wizzy.js            &lt;-- This is the plugin
+</code></pre>
+
+<h6>
+<a id="plugin-initialization" class="anchor" href="#plugin-initialization" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Plugin initialization</h6>
+
+<pre><code>// Remember to include the scripts and the locale strings
+&lt;script src="/assets/js/wizzy/wizzy.js"&gt;&lt;/script&gt;
+&lt;script src="/assets/js/wizzy/i18n/en.js"&gt;&lt;/script&gt;
+
+// Initialization
+&lt;script&gt;
+    $(document).ready(function () {
+        $('#wizzy').wizzy({
+            environment: {{ Wizzy::isEnvironmentStepEnabled() }},
+            database: {{ Wizzy::isDatabaseStepEnabled() }},
+            redirectUrl: "{{ Wizzy::getRedirectUrl() }}",
+            welcomeRoute: "{{ route(Wizzy::getPrefix() . '.wizzy') }}",
+            environmentRoute: "{{ route(Wizzy::getPrefix() . '.environment') }}",
+            databaseRoute: "{{ route(Wizzy::getPrefix() . '.database') }}",
+            conclusionRoute: "{{ route(Wizzy::getPrefix() . '.conclusion') }}",
+            executeRoute: "{{ route(Wizzy::getPrefix() . '.execute') }}",
+        });
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h6>
+<a id="plugin-options" class="anchor" href="#plugin-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Plugin options</h6>
+
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>environment</td>
+<td>false</td>
+<td>Enable/disable environment step</td>
+</tr>
+<tr>
+<td>database</td>
+<td>false</td>
+<td>Enable/disable database step</td>
+</tr>
+<tr>
+<td>redirectUrl</td>
+<td>/</td>
+<td>Conclusion step redirect url</td>
+</tr>
+<tr>
+<td>welcomeRoute</td>
+<td>-</td>
+<td>GET ajax call used to populate welcome view</td>
+</tr>
+<tr>
+<td>environmentRoute</td>
+<td>-</td>
+<td>GET ajax call used to populate enviornment view</td>
+</tr>
+<tr>
+<td>databaseRoute</td>
+<td>-</td>
+<td>GET ajax call used to populate database view</td>
+</tr>
+<tr>
+<td>conclusionRoute</td>
+<td>-</td>
+<td>GET ajax call used to populate conclusion view</td>
+</tr>
+<tr>
+<td>executeRoute</td>
+<td>-</td>
+<td>POST ajax call used to store environment variables and run database migrations</td>
+</tr>
+</tbody>
+</table>
+
+<h6>
+<a id="plugin-callbacks" class="anchor" href="#plugin-callbacks" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Plugin callbacks</h6>
+
+<table>
+<thead>
+<tr>
+<th>Callback</th>
+<th>Default</th>
+<th>Input</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>beforeRenderCallback</td>
+<td>-</td>
+<td>container, view</td>
+<td>Called everytime a new view is shown but when the container is still empty or has been cleared of the previous view elements</td>
+</tr>
+<tr>
+<td>afterRenderCallback</td>
+<td>-</td>
+<td>container, view</td>
+<td>Called after a new view content has been created</td>
+</tr>
+<tr>
+<td>navigationCallback</td>
+<td>-</td>
+<td>button, view</td>
+<td>Called when a view navigation button is clicked anyway before beforeRenderCallback</td>
+</tr>
+<tr>
+<td>previousCallback</td>
+<td>-</td>
+<td>button, view</td>
+<td>Called when the previous button is clicked anyway before beforeRenderCallback</td>
+</tr>
+<tr>
+<td>nextCallback</td>
+<td>-</td>
+<td>button, view</td>
+<td>Called when the previous button is clicked anyway before beforeRenderCallback or before the store ajax call</td>
+</tr>
+<tr>
+<td>conclusionCallback</td>
+<td>-</td>
+<td>button, view</td>
+<td>called when the previous button is clicked anyway before beforeRenderCallback</td>
+</tr>
+<tr>
+<td>undoCallback</td>
+<td>-</td>
+<td>button, modal</td>
+<td>Called when the undo modal button is clicked</td>
+</tr>
+<tr>
+<td>environmentCallback</td>
+<td>-</td>
+<td>button, modal, data</td>
+<td>environment submit button onClick event, if returns false no ajax call will be performed</td>
+</tr>
+<tr>
+<td>environmentCallback</td>
+<td>-</td>
+<td>button, modal, data</td>
+<td>database submit button onClick event, if returns false no ajax call will be performed</td>
+</tr>
+</tbody>
+</table>
+
+<h6>
+<a id="plugin-methods" class="anchor" href="#plugin-methods" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Plugin methods</h6>
+
+<p>The plugin has the following public methods that can be called in this way:</p>
+
+<pre><code>$('.wizzy').wizzy('publicMethod', ...);
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Input</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>renderContent</td>
+<td>container, view, beforeRenderCallback, afterRenderCallback</td>
+<td>This method renders one of the wizard views. The container must be a jquery object (ex. <code>$('&lt;div /&gt;')</code>), the view is a integer (1 =&gt; welcome, 2 =&gt; environment or database or conclusion, 3 =&gt; database or conclusion, 4: conclusion).</td>
+</tr>
+</tbody>
+</table>
+
+<h5>
+<a id="i18n" class="anchor" href="#i18n" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>i18n</h5>
+
+<p>The translation files are located in <code>assets/js/wizzy/i18n</code>. The wizard has been translated in the following languages:</p>
+
+<ul>
+<li>
+<strong>EN</strong>: english</li>
+<li>
+<strong>IT</strong>: italian</li>
+</ul>
+
+<p>If your language is missing please open an issue or make a pull request!</p>
+
+<h5>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h5>
+
+<p>Here you can see a few examples of how you can customize the wizard.</p>
+
+<h6>
+<a id="callback-examples" class="anchor" href="#callback-examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Callback examples</h6>
+
+<pre><code>// Remember to include the scripts and the locale strings
+&lt;script src="/assets/js/wizzy/wizzy.js"&gt;&lt;/script&gt;
+&lt;script src="/assets/js/wizzy/i18n/en.js"&gt;&lt;/script&gt;
+
+// Initialization
+&lt;script&gt;
+    $(document).ready(function () {
+        $('#wizzy').wizzy({
+            beforeRenderCallback: function(container, view) {
+                console.log(container); // jQuery object
+                console.log(view);      // 1, 2, 3, 4
+            },
+            afterRenderCallback: function(container, view) {
+                console.log(container); // jQuery object
+                console.log(view);      // 1, 2, 3, 4
+            },
+            navigationCallback: function(button, view) {
+                console.log(button);    // jQuery object
+                console.log(view);      // jQuery object
+            },
+            previousCallback: function(button, view) {
+                console.log(button);    // jQuery object
+                console.log(view);      // jQuery object
+            },
+            nextCallback: function(button, view) {
+                console.log(button);    // jQuery object
+                console.log(view);      // jQuery object
+            },
+            conclusionCallback: function(button, view) {
+                console.log(button);    // jQuery object
+                console.log(view);      // jQuery object
+            },
+            undoCallback: function(button, modal) {
+                console.log(button);    // jQuery object
+                console.log(modal);     // jQuery object
+            },
+            environmentRoute: function(container, view, data) {
+                console.log(button);    // jQuery object
+                console.log(view);      // jQuery object
+                console.log(data);      // jQuery object
+
+                return true; // Ajax call will be performed,
+            },
+            environmentRoute: function(container, view, data) {
+                console.log(button);    // jQuery object
+                console.log(view);      // jQuery object
+                console.log(data);      // jQuery object
+
+                return false; // Ajax call won't be performed,
+            },
+        });
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h6>
+<a id="controller-examples" class="anchor" href="#controller-examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Controller examples</h6>
+
+<pre><code>COMING SOON
+</code></pre>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>Laravel Wizzy is licensed under <a href="LICENSE">The MIT License (MIT)</a>.</p>
+
+<h2>
+<a id="known-issues" class="anchor" href="#known-issues" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Known issues</h2>
+
+<ul>
+<li>The alpha phase just started... I'm looking for issues...</li>
+</ul>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/IlGala/laravel-wizzy/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/IlGala/laravel-wizzy/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/IlGala/laravel-wizzy"></a> is maintained by <a href="https://github.com/IlGala">IlGala</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
