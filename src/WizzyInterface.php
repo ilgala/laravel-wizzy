@@ -14,12 +14,10 @@ namespace IlGala\LaravelWizzy;
 use Illuminate\Http\Request;
 
 /**
- *
  * @author ilgala
  */
 interface WizzyInterface
 {
-
     public function index(Request $request);
 
     public function environment(Request $request);

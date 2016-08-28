@@ -21,7 +21,6 @@ use File;
  */
 class Wizzy
 {
-
     /**
      * Config repository.
      *
@@ -166,7 +165,8 @@ class Wizzy
      *
      * @param string $filename
      * @param string $variables
-     * @param boolean $wizzy_enabled
+     * @param bool   $wizzy_enabled
+     *
      * @return string filename
      */
     public static function environmentStore($filename, $variables, $wizzy_enabled = false)
@@ -186,7 +186,7 @@ class Wizzy
                 $config_repository = app()->app['config'];
             }
 
-            fwrite($file, $exploded_variable[0] . '=' . $exploded_variable[1] . "\n");
+            fwrite($file, $exploded_variable[0].'='.$exploded_variable[1]."\n");
         }
 
         if ($wizzy_enabled) {
@@ -206,8 +206,8 @@ class Wizzy
      * Runs the artisan 'migrate' command.
      *
      * @param string $path
-     * @param boolean $refresh_database
-     * @param boolean $seed_database
+     * @param bool   $refresh_database
+     * @param bool   $seed_database
      */
     public static function runMigration($path, $refresh_database, $seed_database)
     {
@@ -229,6 +229,7 @@ class Wizzy
      * Retrieve all the migration files in the given path.
      *
      * @param type $path
+     *
      * @return array
      */
     public static function getMigrationsList($path)
@@ -248,6 +249,7 @@ class Wizzy
      *
      * @param type $command
      * @param type $attributes
+     *
      * @return void
      */
     public static function artisanCall($command, $attributes = [])
@@ -259,7 +261,8 @@ class Wizzy
      * Checks the PHP version and returns an array with 3 variables:
      *  - required: true|false
      *  - preferred: true|false
-     *  - version: required|preferred|empty string
+     *  - version: required|preferred|empty string.
+     *
      * @return array
      */
     public function checkPHPVersion()
@@ -274,9 +277,9 @@ class Wizzy
         $preferred_version = ($temp_preferred_version[0] * 10000 + $temp_preferred_version[1] * 100 + $temp_preferred_version[2]);
 
         return [
-            'required' => ($version < $required_version),
+            'required'  => ($version < $required_version),
             'preferred' => ($version < $preferred_version),
-            'version' => ($version < $required_version ? $this->config_repository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->config_repository->get('wizzy.system_requirements.php.preferred') : ''),
+            'version'   => ($version < $required_version ? $this->config_repository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->config_repository->get('wizzy.system_requirements.php.preferred') : ''),
         ];
     }
 
@@ -302,6 +305,7 @@ class Wizzy
      * Returns all the environment variables as an array.
      *
      * @param string $envPath
+     *
      * @return array
      */
     public function fromEnvToArray($envPath)
@@ -324,11 +328,12 @@ class Wizzy
     }
 
     /**
-     * Returns all the environment variables as a string with this structure:
+     * Returns all the environment variables as a string with this structure:.
      *
      * key:value|key:value|key:value
      *
      * @param string $envPath
+     *
      * @return string
      */
     public function fromEnvToString($envPath)
@@ -343,7 +348,7 @@ class Wizzy
                 // Not a comment, explode line
                 $variable = explode('=', $line);
                 if ($variable[0] != 'WIZZY_ENABLED') {
-                    $env_variables .= $variable[0] . ':' . $variable[1];
+                    $env_variables .= $variable[0].':'.$variable[1];
                 }
             }
 
@@ -354,5 +359,4 @@ class Wizzy
 
         return $env_variables;
     }
-
 }

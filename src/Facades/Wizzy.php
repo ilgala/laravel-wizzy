@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Facade;
  */
 class Wizzy extends Facade
 {
-
     /**
      * Get the binding in the IoC container.
      *
@@ -30,5 +29,4 @@ class Wizzy extends Facade
     {
         return 'Wizzy'; // the IoC binding.
     }
-
 }
