@@ -20,8 +20,14 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 
-class WizzyController extends BaseController
+/**
+ * This is Wizzy controller class.
+ *
+ * @author ilgala
+ */
+class WizzyController extends BaseController implements WizzyInterface
 {
+
     use AuthorizesRequests,
         AuthorizesResources,
         DispatchesJobs,
@@ -32,11 +38,21 @@ class WizzyController extends BaseController
      */
     protected $wizzy;
 
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->wizzy = app('wizzy');
     }
 
+    /**
+     * Show the index view.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
         $request->session()->flush();
@@ -63,6 +79,13 @@ class WizzyController extends BaseController
         return view('wizzy::index');
     }
 
+    /**
+     * Wizzy environment step action.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     * @throws WizzyException
+     */
     public function environment(Request $request)
     {
         if (!$request->ajax()) {
@@ -88,6 +111,13 @@ class WizzyController extends BaseController
         return response()->json(compact('token', 'filename', 'env_variables'));
     }
 
+    /**
+     * Wizzy database step action.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     * @throws WizzyException
+     */
     public function database(Request $request)
     {
         if (!$request->ajax()) {
@@ -103,17 +133,52 @@ class WizzyController extends BaseController
         return response()->json(compact('token', 'migrations'));
     }
 
+    /**
+     * Wizzy conclusion step action.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     * @throws WizzyException
+     */
     public function conclusion(Request $request)
     {
         if (!$request->ajax()) {
             throw new WizzyException('Method not allowed', 401);
         }
 
-        // WIZZY_ENABLED FALSE
-        // run php artisan clear-compiled && php artisan optimize
-        // run php artisan key:generate
+        // Recover environment file
+        if (session()->get('wizzy.envfile', null) !== null) {
+            $envPath = base_path(session()->get('wizzy.envfile'));
+            $filename = session()->get('wizzy.envfile');
+        } else {
+            $configRepository = app()->app['config'];
+
+            $envPath = base_path($configRepository->get('wizzy.environment'));
+            $filename = $configRepository->get('wizzy.environment');
+        }
+
+        $configRepository = app()->app['config'];
+        $env_variables = $this->wizzy->fromEnvToString($envPath);
+
+        $filename = Wizzy::environmentStore($filename, $env_variables, true);
+
+        foreach ($configRepository->get('wizzy.conclusion_scripts') as $script) {
+            Wizzy::artisanCall($script);
+        }
+
+        // refresh token
+        $token = csrf_token();
+
+        return response()->json(compact('token'));
     }
 
+    /**
+     * Wizzy custom actions.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     * @throws WizzyException
+     */
     public function execute(Request $request)
     {
         if (!$request->has('view')) {
@@ -130,6 +195,13 @@ class WizzyController extends BaseController
         }
     }
 
+    /**
+     * Wizzy store environment variables action.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     * @throws WizzyException
+     */
     private function storeEnvironmentSettings(Request $request)
     {
         $this->validate($request, [
@@ -147,6 +219,13 @@ class WizzyController extends BaseController
         return response()->json(compact('token', 'success', 'message'));
     }
 
+    /**
+     * Wizzy run migration action.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     * @throws WizzyException
+     */
     private function runMigrations(Request $request)
     {
         $configRepository = app()->app['config'];
@@ -162,4 +241,5 @@ class WizzyController extends BaseController
 
         return response()->json(compact('token', 'success', 'message'));
     }
+
 }

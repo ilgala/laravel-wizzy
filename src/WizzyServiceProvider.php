@@ -15,8 +15,14 @@ use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Laravel\Lumen\Application as LumenApplication;
 
+/**
+ * This is the Wizzy service provider class.
+ *
+ * @author ilgala
+ */
 class WizzyServiceProvider extends LaravelServiceProvider
 {
+
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -34,7 +40,6 @@ class WizzyServiceProvider extends LaravelServiceProvider
         $this->handleConfigs();
         $this->handleViews();
         $this->handleAssets();
-        $this->handleTranslations();
         $this->handleRoutes();
     }
 
@@ -62,9 +67,14 @@ class WizzyServiceProvider extends LaravelServiceProvider
         return ['wizzy'];
     }
 
+    /**
+     * Setup wizzy config.
+     *
+     * @return void
+     */
     private function handleConfigs()
     {
-        $source = realpath(__DIR__.'/../config/wizzy.php');
+        $source = realpath(__DIR__ . '/../config/wizzy.php');
 
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('wizzy.php')]);
@@ -75,25 +85,36 @@ class WizzyServiceProvider extends LaravelServiceProvider
         $this->mergeConfigFrom($source, 'wizzy');
     }
 
-    private function handleTranslations()
-    {
-        $this->loadTranslationsFrom(__DIR__.'/Lang', 'wizzy');
-    }
-
+    /**
+     * Setup wizzy views.
+     *
+     * @return void
+     */
     private function handleViews()
     {
-        $this->loadViewsFrom(__DIR__.'/Views', 'wizzy');
+        $this->loadViewsFrom(__DIR__ . '/Views', 'wizzy');
 
-        $this->publishes([__DIR__.'/Views' => base_path('resources/views/vendor/wizzy')]);
+        $this->publishes([__DIR__ . '/Views' => base_path('resources/views/vendor/wizzy')]);
     }
 
+    /**
+     * Setup wizzy assets.
+     *
+     * @return void
+     */
     private function handleAssets()
     {
-        $this->publishes([__DIR__.'/../public/assets' => public_path('assets')], 'public');
+        $this->publishes([__DIR__ . '/../public/assets' => public_path('assets')], 'public');
     }
 
+    /**
+     * Setup wizzy routes.
+     *
+     * @return void
+     */
     private function handleRoutes()
     {
-        include __DIR__.'/routes.php';
+        include __DIR__ . '/routes.php';
     }
+
 }

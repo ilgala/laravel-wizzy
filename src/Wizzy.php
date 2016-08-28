@@ -15,12 +15,13 @@ use Artisan;
 use File;
 
 /**
- * Description of Wizzy.
+ * This is Wizzy class.
  *
  * @author ilgala
  */
 class Wizzy
 {
+
     /**
      * Config repository.
      *
@@ -87,7 +88,9 @@ class Wizzy
     }
 
     /**
-     * Get wizzy route group prefix.
+     * Get wizzy route group prefix from the config file.
+     *
+     * @return string wizzy.prefix
      */
     public static function getPrefix()
     {
@@ -97,7 +100,9 @@ class Wizzy
     }
 
     /**
-     * Get wizzy route group prefix.
+     * Get wizzy default evnironment filename from the config file.
+     *
+     * @return string wizzy.environment
      */
     public static function getDefaultEnv()
     {
@@ -107,7 +112,9 @@ class Wizzy
     }
 
     /**
-     * Get wizzy route group prefix.
+     * Get wizzy conclusion view redirect url from the config file.
+     *
+     * @return string wizzy.redirectTo
      */
     public static function getRedirectUrl()
     {
@@ -119,7 +126,7 @@ class Wizzy
     /**
      * Check if wizzy is enabled from the config file.
      *
-     * @return bool
+     * @return bool true|false
      */
     public static function isWizzyEnabled()
     {
@@ -128,6 +135,11 @@ class Wizzy
         return $config_repository->get('wizzy.wizzy_enabled') ? 'true' : 'false';
     }
 
+    /**
+     * Check if wizzy environment step is enabled from the config file.
+     *
+     * @return string wizzy.steps.environment
+     */
     public static function isEnvironmentStepEnabled()
     {
         $config_repository = app()->app['config'];
@@ -135,6 +147,11 @@ class Wizzy
         return $config_repository->get('wizzy.steps.environment') ? 'true' : 'false';
     }
 
+    /**
+     * Check if wizzy database step is enabled from the config file.
+     *
+     * @return string wizzy.steps.database
+     */
     public static function isDatabaseStepEnabled()
     {
         $config_repository = app()->app['config'];
@@ -142,6 +159,109 @@ class Wizzy
         return $config_repository->get('wizzy.steps.database') ? 'true' : 'false';
     }
 
+    /**
+     * Stores the $variables array as an environment file. If the $wizzy_enabled
+     * variable is true, then it will add WIZZY_ENABLED=false variable in the
+     * .env file.
+     *
+     * @param string $filename
+     * @param string $variables
+     * @param boolean $wizzy_enabled
+     * @return string filename
+     */
+    public static function environmentStore($filename, $variables, $wizzy_enabled = false)
+    {
+        if (strlen($filename) == 0) {
+            $filename = '.env';
+        }
+
+        $file = fopen(base_path($filename), 'w');
+
+        $exploded_variables = explode('|', $variables);
+
+        foreach ($exploded_variables as $variable) {
+            $exploded_variable = explode(':', $variable, 2);
+
+            if ($exploded_variable[0] == 'APP_ENV') {
+                $config_repository = app()->app['config'];
+            }
+
+            fwrite($file, $exploded_variable[0] . '=' . $exploded_variable[1] . "\n");
+        }
+
+        if ($wizzy_enabled) {
+            fwrite($file, "WIZZY_ENABLED=false\n");
+        }
+
+        fclose($file);
+
+        // reset config
+        Artisan::call('config:clear');
+        Artisan::call('config:cache');
+
+        return $filename;
+    }
+
+    /**
+     * Runs the artisan 'migrate' command.
+     *
+     * @param string $path
+     * @param boolean $refresh_database
+     * @param boolean $seed_database
+     */
+    public static function runMigration($path, $refresh_database, $seed_database)
+    {
+        // Retrieve force flag
+        $config_repository = app()->app['config'];
+
+        $force_flag = $config_repository->get('wizzy.foce_flag');
+
+        // Check database refresh
+        if ($refresh_database) {
+            Artisan::call('migrate:refresh', ['--seed' => $seed_database]);
+        } else {
+            // Call migrations
+            Artisan::call('migrate', ['--path' => $path, '--force' => $force_flag]);
+        }
+    }
+
+    /**
+     * Retrieve all the migration files in the given path.
+     *
+     * @param type $path
+     * @return array
+     */
+    public static function getMigrationsList($path)
+    {
+        $files = [];
+        $filesInFolder = File::allFiles(base_path($path));
+
+        foreach ($filesInFolder as $path) {
+            array_push($files, pathinfo($path)['basename']);
+        }
+
+        return $files;
+    }
+
+    /**
+     * Runs an artisan command.
+     *
+     * @param type $command
+     * @param type $attributes
+     * @return void
+     */
+    public static function artisanCall($command, $attributes = [])
+    {
+        Artisan::call($command, $attributes);
+    }
+
+    /**
+     * Checks the PHP version and returns an array with 3 variables:
+     *  - required: true|false
+     *  - preferred: true|false
+     *  - version: required|preferred|empty string
+     * @return array
+     */
     public function checkPHPVersion()
     {
         $temp_version = explode('.', phpversion());
@@ -154,12 +274,18 @@ class Wizzy
         $preferred_version = ($temp_preferred_version[0] * 10000 + $temp_preferred_version[1] * 100 + $temp_preferred_version[2]);
 
         return [
-            'required'  => ($version < $required_version),
+            'required' => ($version < $required_version),
             'preferred' => ($version < $preferred_version),
-            'version'   => ($version < $required_version ? $this->config_repository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->config_repository->get('wizzy.system_requirements.php.preferred') : ''),
+            'version' => ($version < $required_version ? $this->config_repository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->config_repository->get('wizzy.system_requirements.php.preferred') : ''),
         ];
     }
 
+    /**
+     * Checks the PHP extensions and returns an array with the variable name
+     * and version|false.
+     *
+     * @return array
+     */
     public function checkPHPExstensions()
     {
         $raw_extensions = $this->config_repository->get('wizzy.system_requirements.php_extensions');
@@ -172,6 +298,12 @@ class Wizzy
         return $extensions;
     }
 
+    /**
+     * Returns all the environment variables as an array.
+     *
+     * @param string $envPath
+     * @return array
+     */
     public function fromEnvToArray($envPath)
     {
         $env_lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -191,69 +323,36 @@ class Wizzy
         return $env_variables;
     }
 
-    public function checkEnvFilename($filename)
+    /**
+     * Returns all the environment variables as a string with this structure:
+     *
+     * key:value|key:value|key:value
+     *
+     * @param string $envPath
+     * @return string
+     */
+    public function fromEnvToString($envPath)
     {
-        if (strlen($filename) > 0 && substr($filename, 0, 1) === '.') {
-            $filename = substr($filename, 1, strlen($filename));
-        }
+        $env_lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $env_variables = '';
 
-        return $filename;
-    }
-
-    public static function environmentStore($filename, $variables)
-    {
-        if (strlen($filename) == 0) {
-            $filename = '.env';
-        }
-
-        $file = fopen(base_path($filename), 'w');
-
-        $exploded_variables = explode('|', $variables);
-
-        foreach ($exploded_variables as $variable) {
-            $exploded_variable = explode(':', $variable, 2);
-
-            if ($exploded_variable[0] == 'APP_ENV') {
-                $config_repository = app()->app['config'];
+        for ($i = 0; $i < count($env_lines); $i++) {
+            $line = $env_lines[$i];
+            // Check if comment
+            if (substr($line, 0, 1) !== '#') {
+                // Not a comment, explode line
+                $variable = explode('=', $line);
+                if ($variable[0] != 'WIZZY_ENABLED') {
+                    $env_variables .= $variable[0] . ':' . $variable[1];
+                }
             }
 
-            fwrite($file, $exploded_variable[0].'='.$exploded_variable[1]."\n");
+            if ($i < count($env_lines) - 1) {
+                $env_variables .= '|';
+            }
         }
 
-        fclose($file);
-
-        // reset config
-        Artisan::call('config:clear');
-        Artisan::call('config:cache');
-
-        return $filename;
+        return $env_variables;
     }
 
-    public static function runMigration($path, $refresh_database, $seed_database)
-    {
-        // Retrieve force flag
-        $config_repository = app()->app['config'];
-
-        $force_flag = $config_repository->get('wizzy.foce_flag');
-
-        // Check database refresh
-        if ($refresh_database) {
-            Artisan::call('migrate:refresh', ['--seed' => $seed_database]);
-        } else {
-            // Call migrations
-            Artisan::call('migrate', ['--path' => $path, '--force' => $force_flag]);
-        }
-    }
-
-    public static function getMigrationsList($path)
-    {
-        $files = [];
-        $filesInFolder = File::allFiles(base_path($path));
-
-        foreach ($filesInFolder as $path) {
-            array_push($files, pathinfo($path)['basename']);
-        }
-
-        return $files;
-    }
 }

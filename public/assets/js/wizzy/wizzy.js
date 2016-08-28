@@ -11,6 +11,7 @@
                 loading: '<div class="loading col-md-12 text-center"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></div>',
                 environment: false,
                 database: false,
+                redirectUrl: '/',
                 interface: {
                     $btnPrevious: $('<a />', {class: 'btn btn-default wizzy-previous-btn', disabled: true}),
                     $btnNext: $('<a />', {class: 'btn btn-default wizzy-next-btn', disabled: true}),
@@ -38,7 +39,7 @@
             // Body initialization
             $this.$body = $('<div />', {class: 'panel-body wizzy-body'});
             $this.$navigation = $('<div />', {class: 'col-md-12 wizzy-navigation mbot-10'});
-            var btnGroup = $this._initializeNavigation();
+            var btnGroup = $this._initializeNavigation($this.options.navigationCallback);
             $this.$navigation.append(btnGroup);
             $this.$element.append($this.$body.append($this.$navigation));
             // Footer initialization
@@ -59,10 +60,23 @@
             // Hide complete button
             $this.options.interface.$btnComplete.hide();
 
+            // complete callback
+            if (typeof $this.options.previousCallback == 'function') {
+                $this.options.interface.$btnComplete.click(function () {
+                    $this.options.previousCallback($(this), $this.view);
+                });
+            }
+
             $this.renderContent($this.$body, 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
             // previous button listener
             $this.options.interface.$btnPrevious.click(function (e) {
                 e.preventDefault();
+
+                // previous callback
+                if (typeof $this.options.previousCallback == 'function') {
+                    $this.options.previousCallback($(this), $this.view);
+                }
+
                 var attr = $(this).attr('disabled');
                 if (typeof attr === typeof undefined || attr === false) {
                     $this.renderContent($this.$body, $this.view.data('step') - 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
@@ -71,6 +85,12 @@
             // previous button listener
             $this.options.interface.$btnNext.click(function (e) {
                 e.preventDefault();
+
+                // next callback
+                if (typeof $this.options.nextCallback == 'function') {
+                    $this.options.nextCallback($(this), $this.view);
+                }
+
                 var attr = $(this).attr('disabled');
                 if (typeof attr === typeof undefined || attr === false) {
                     if ($this.view.data('viewName') == 'environment') {
@@ -81,6 +101,13 @@
                         $modal.find('.wizzy-undo-btn').html($.fn[pluginName].locale.views.environment.modal.undo);
                         $modal.find('.wizzy-undo-btn').click(function () {
                             $modal.find('.alert').remove();
+
+                            // undo callback
+                            if (typeof $this.options.previousCallback == 'function') {
+                                $this.options.interface.$btnComplete.click(function () {
+                                    $this.options.previousCallback($(this), $modal);
+                                });
+                            }
                         });
 
                         $modal.find('.wizzy-accept-btn').html($.fn[pluginName].locale.views.environment.modal.confirm);
@@ -101,50 +128,60 @@
                                 variables: ''
                             };
 
-                            $.each($this.environmentForm.find('input.wizzy-env-variable'), function (index, input) {
-                                data.variables = data.variables.concat($(input).data('name') + ':' + $(input).val());
+                            // environment callback
+                            if (typeof $this.options.environmentCallback == 'function') {
+                                var result = $this.options.environmentCallback($(this), $modal, data);
+                            } else {
+                                result = true;
+                            }
 
-                                if (index < $this.environmentForm.find('input.wizzy-env-variable').length - 1) {
-                                    data.variables = data.variables.concat('|');
-                                }
-                            });
+                            if (typeof result !== typeof undefined || result !== false) {
 
-                            $this._debug(data);
+                                $.each($this.environmentForm.find('input.wizzy-env-variable'), function (index, input) {
+                                    data.variables = data.variables.concat($(input).data('name') + ':' + $(input).val());
 
-                            // Ajax call
-                            $.ajax({
-                                url: $this.options.executeRoute,
-                                method: 'POST',
-                                dataType: 'JSON',
-                                data: data,
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                },
-                                async: true,
-                                success: function (response) {
-                                    $this._debug(response);
-                                    if (response.token !== undefined) {
-                                        $this._debug('TOKEN REFRESH');
-                                        $('meta[name="csrf-token"]').attr('content', response.token);
+                                    if (index < $this.environmentForm.find('input.wizzy-env-variable').length - 1) {
+                                        data.variables = data.variables.concat('|');
                                     }
-                                    $modal.modal('hide');
+                                });
 
-                                    $this.renderContent($this.$body, $this.view.data('step') + 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
-                                },
-                                error: function (jqXHR, textStatus, errorThrown) {
-                                    $this._error(jqXHR);
-                                    $this._error(jqXHR.responseText);
+                                $this._debug(data);
 
-                                    var error = JSON.parse(jqXHR.responseText);
+                                // Ajax call
+                                $.ajax({
+                                    url: $this.options.executeRoute,
+                                    method: 'POST',
+                                    dataType: 'JSON',
+                                    data: data,
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    async: true,
+                                    success: function (response) {
+                                        $this._debug(response);
+                                        if (response.token !== undefined) {
+                                            $this._debug('TOKEN REFRESH');
+                                            $('meta[name="csrf-token"]').attr('content', response.token);
+                                        }
+                                        $modal.modal('hide');
 
-                                    var alert = $('<div />', {class: 'alert alert-danger', html: error.variables[0]});
+                                        $this.renderContent($this.$body, $this.view.data('step') + 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        $this._error(jqXHR);
+                                        $this._error(jqXHR.responseText);
 
-                                    $modal.find('.modal-body').append(alert);
+                                        var error = JSON.parse(jqXHR.responseText);
 
-                                    $this._error(errorThrown);
-                                    $this._error(textStatus);
-                                }
-                            });
+                                        var alert = $('<div />', {class: 'alert alert-danger', html: error.variables[0]});
+
+                                        $modal.find('.modal-body').append(alert);
+
+                                        $this._error(errorThrown);
+                                        $this._error(textStatus);
+                                    }
+                                });
+                            }
                         });
 
                         // Show modal
@@ -174,49 +211,59 @@
                                 seed: $this.databaseForm.find('input[name=seed]').prop('checked')
                             };
 
-                            $this._debug(data);
+                            // database callback
+                            if (typeof $this.options.databaseCallback == 'function') {
+                                var result = $this.options.databaseCallback($(this), $modal, data);
+                            } else {
+                                result = true;
+                            }
 
-                            // Ajax call
-                            $.ajax({
-                                url: $this.options.executeRoute,
-                                method: 'POST',
-                                dataType: 'JSON',
-                                data: data,
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                },
-                                async: true,
-                                success: function (response) {
-                                    $this._debug(response);
-                                    if (response.token !== undefined) {
-                                        $this._debug('TOKEN REFRESH');
-                                        $('meta[name="csrf-token"]').attr('content', response.token);
+                            if (typeof result !== typeof undefined || result !== false) {
+
+                                $this._debug(data);
+
+                                // Ajax call
+                                $.ajax({
+                                    url: $this.options.executeRoute,
+                                    method: 'POST',
+                                    dataType: 'JSON',
+                                    data: data,
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    async: true,
+                                    success: function (response) {
+                                        $this._debug(response);
+                                        if (response.token !== undefined) {
+                                            $this._debug('TOKEN REFRESH');
+                                            $('meta[name="csrf-token"]').attr('content', response.token);
+                                        }
+
+                                        // Remove loading
+                                        loadingRow.remove();
+
+                                        $modal.modal('hide');
+
+                                        $this.renderContent($this.$body, $this.view.data('step') + 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        $this._error(jqXHR);
+                                        $this._error(jqXHR.responseText);
+
+                                        // Remove loading
+                                        loadingRow.remove();
+
+                                        var error = JSON.parse(jqXHR.responseText);
+
+                                        var alert = $('<div />', {class: 'alert alert-danger', html: error.variables[0]});
+
+                                        $modal.find('.modal-body').append(alert);
+
+                                        $this._error(errorThrown);
+                                        $this._error(textStatus);
                                     }
-
-                                    // Remove loading
-                                    loadingRow.remove();
-
-                                    $modal.modal('hide');
-
-                                    $this.renderContent($this.$body, $this.view.data('step') + 1, $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
-                                },
-                                error: function (jqXHR, textStatus, errorThrown) {
-                                    $this._error(jqXHR);
-                                    $this._error(jqXHR.responseText);
-
-                                    // Remove loading
-                                    loadingRow.remove();
-
-                                    var error = JSON.parse(jqXHR.responseText);
-
-                                    var alert = $('<div />', {class: 'alert alert-danger', html: error.variables[0]});
-
-                                    $modal.find('.modal-body').append(alert);
-
-                                    $this._error(errorThrown);
-                                    $this._error(textStatus);
-                                }
-                            });
+                                });
+                            }
                         });
 
                         // Show modal
@@ -257,18 +304,25 @@
             }
         },
         // Private methods
-        _initializeNavigation: function () {
+        _initializeNavigation: function (navigationCallback) {
             var $this = this;
 
             // Setup variables
             var step = 1;
-            var btnGroup = $('<div />', {class: 'btn-group btn-group-justified wizzy-step'});
-            var welcomeBtn = $('<a />', {href: '#', class: 'btn btn-success', html: $.fn[pluginName].locale.views.welcome.title});
+            var btnGroup = $('<div />', {class: 'btn-group btn-group-justified wizzy-step mbot-10'});
+            var welcomeBtn = $('<a />', {href: '#', class: 'btn btn-warning', html: $.fn[pluginName].locale.views.welcome.title});
 
             // Welcome data
             welcomeBtn.data('step', step);
             welcomeBtn.data('stepEnabled', true);
-            welcomeBtn.click(function () {
+            welcomeBtn.click(function (e) {
+                e.preventDefault();
+
+                // navigation callback
+                if (typeof $this.options.navigationCallback == 'function') {
+                    $this.options.navigationCallback($(this), 1);
+                }
+
                 var button = $(this);
                 if (button.data('stepEnabled')) {
                     $this.renderContent($this.$body, button.data('step'), $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
@@ -281,8 +335,15 @@
             if ($this.options.environment) {
                 var environmentBtn = $('<a />', {href: '#', class: 'btn btn-default disabled', html: $.fn[pluginName].locale.views.environment.title});
                 environmentBtn.data('step', 2);
-                welcomeBtn.data('stepEnabled', false);
-                environmentBtn.click(function () {
+                environmentBtn.data('stepEnabled', false);
+                environmentBtn.click(function (e) {
+                    e.preventDefault();
+
+                    // navigation callback
+                    if (typeof $this.options.navigationCallback == 'function') {
+                        $this.options.navigationCallback($(this), 2);
+                    }
+
                     var button = $(this);
                     if (button.data('stepEnabled')) {
                         $this.renderContent($this.$body, button.data('step'), $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
@@ -296,8 +357,15 @@
             if ($this.options.database) {
                 var databaseBtn = $('<a />', {href: '#', class: 'btn btn-default disabled', html: $.fn[pluginName].locale.views.database.title});
                 databaseBtn.data('step', 3);
-                welcomeBtn.data('stepEnabled', false);
-                databaseBtn.click(function () {
+                databaseBtn.data('stepEnabled', false);
+                databaseBtn.click(function (e) {
+                    e.preventDefault();
+
+                    // navigation callback
+                    if (typeof $this.options.navigationCallback == 'function') {
+                        $this.options.navigationCallback($(this), 3);
+                    }
+
                     var button = $(this);
                     if (button.data('stepEnabled')) {
                         $this.renderContent($this.$body, button.data('step'), $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
@@ -310,8 +378,15 @@
             // Conclusion data
             var conclusionBtn = $('<a />', {href: '#', class: 'btn btn-default disabled', html: $.fn[pluginName].locale.views.conclusion.title});
             conclusionBtn.data('step', step);
-            welcomeBtn.data('stepEnabled', false);
-            conclusionBtn.click(function () {
+            conclusionBtn.data('stepEnabled', false);
+            conclusionBtn.click(function (e) {
+                e.preventDefault();
+
+                // navigation callback
+                if (typeof $this.options.navigationCallback == 'function') {
+                    $this.options.navigationCallback($(this), 4);
+                }
+
                 var button = $(this);
                 if (button.data('stepEnabled')) {
                     $this.renderContent($this.$body, button.data('step'), $this.options.beforeRenderCallback, $this.options.afterRenderCallback);
@@ -323,9 +398,10 @@
         _setupView: function (container, view) {
             var $this = this;
             $this.$header.find('.wizzy-title').html($.fn[pluginName].locale.views[view].title);
+            var suggestions = $('<div />', {class: 'col-md-12 well'});
             var subtitle = $('<h4 />', {class: 'wizzy-view-title', html: $.fn[pluginName].locale.views[view].subtitle});
             var message = $('<p />', {class: 'wizzy-view-title', html: $.fn[pluginName].locale.views[view].message});
-            container.append('<hr/>').append(subtitle).append(message).append('<hr/>');
+            container.append('<hr/>').append(suggestions.append(subtitle).append(message)).append('<hr/>');
         },
         _renderWelcomeView: function (container, step) {
             var $this = this;
@@ -416,6 +492,21 @@
                 $this.$footer.find('.wizzy-previous-btn').removeAttr('disabled', false);
             }
 
+            $this.$navigation.find('.wizzy-step').children().each(function (index, button) {
+                if ($(button).data('step') == step) {
+                    if ($(button).hasClass('disabled')) {
+                        $(button).toggleClass('disabled btn-default btn-warning');
+                    }
+                    $(button).data('stepEnabled', true);
+
+                    var attr = $(button).attr('disabled');
+
+                    if (typeof attr !== typeof undefined || attr !== false) {
+                        $(button).removeAttr('disabled', false);
+                    }
+                }
+            });
+
             $this.options.interface.$btnNext.show();
             $this.options.interface.$btnComplete.hide();
 
@@ -497,6 +588,21 @@
                 $this.$footer.find('.wizzy-previous-btn').removeAttr('disabled', false);
             }
 
+            $this.$navigation.find('.wizzy-step').children().each(function (index, button) {
+                if ($(button).data('step') == step) {
+                    if ($(button).hasClass('disabled')) {
+                        $(button).toggleClass('disabled btn-default btn-warning');
+                    }
+                    $(button).data('stepEnabled', true);
+
+                    var attr = $(button).attr('disabled');
+
+                    if (typeof attr !== typeof undefined || attr !== false) {
+                        $(button).removeAttr('disabled', false);
+                    }
+                }
+            });
+
             $this.options.interface.$btnNext.show();
             $this.options.interface.$btnComplete.hide();
 
@@ -566,14 +672,59 @@
                 $this.$footer.find('.wizzy-previous-btn').attr('disabled', true);
             }
 
+            $this.$navigation.find('.wizzy-step').children().each(function (index, button) {
+                if ($(button).data('step') == step) {
+                    if ($(button).hasClass('disabled')) {
+                        $(button).toggleClass('disabled btn-default btn-success');
+                    }
+                    $(button).data('stepEnabled', true);
+
+                    var attr = $(button).attr('disabled');
+
+                    if (typeof attr !== typeof undefined || attr !== false) {
+                        $(button).removeAttr('disabled', false);
+                    }
+                } else {
+                    $(button).toggleClass('btn-warning btn-success');
+                }
+            });
+
+            // Setup view content
+            var loadingContainer = $('<div />', {class: 'col-md-12 wizzy-conclusion'});
+            var loading = $($this.options.loading).clone();
+            loading.html('<h3>' + $.fn[pluginName].locale.views.conclusion.scripts + '</h3>' + loading.html());
+            loadingContainer.append(loading);
+
+            $this.options.interface.$btnPrevious.hide();
             $this.options.interface.$btnNext.hide();
-            $this.options.interface.$btnComplete.show();
+
+            // Ajax call
+            $.ajax({
+                url: $this.options.conclusionRoute,
+                method: 'GET',
+                dataType: 'JSON',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                async: true,
+                success: function (response) {
+                    $this._debug(response);
+                    loadingContainer.remove();
+                    $this.options.interface.$btnComplete.show();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $this._error(jqXHR);
+                    $this._error(jqXHR.responseText);
+                    $this._error(errorThrown);
+                    $this._error(textStatus);
+                }
+            });
 
             // Append view
-            container.append($this.view);
+            container.append($this.view.append(loadingContainer));
         },
         // Public methods
-        renderContent: function (container, type, beforeRenderCallback, afterRenderCallback) {
+        renderContent: function (container, view, beforeRenderCallback, afterRenderCallback) {
             var $this = this;
             // Setup container
             var loading = $($this.options.loading).clone();
@@ -581,39 +732,39 @@
             container.append(loading);
             // Before render callback
             if (typeof beforeRenderCallback == 'function') {
-                beforeRenderCallback(container, type);
+                beforeRenderCallback(container, view);
             }
 
             // View render
-            switch (type) {
+            switch (view) {
                 case 1:
                     $this._debug('render welcome view');
-                    $this._renderWelcomeView(container, type);
+                    $this._renderWelcomeView(container, view);
                     break;
                 case 2:
                     if ($this.options.environment) {
                         $this._debug('render environment view');
-                        $this._renderEnvironmentView(container, type);
+                        $this._renderEnvironmentView(container, view);
                     } else if ($this.options.database) {
                         $this._debug('render database view');
-                        $this._renderDatabaseView(container, type);
+                        $this._renderDatabaseView(container, view);
                     } else {
                         $this._debug('render conclusion view');
-                        $this._renderConclusionView(container, type);
+                        $this._renderConclusionView(container, view);
                     }
                     break;
                 case 3:
                     if ($this.options.database) {
                         $this._debug('render database view');
-                        $this._renderDatabaseView(container, type);
+                        $this._renderDatabaseView(container, view);
                     } else {
                         $this._debug('render conclusion view');
-                        $this._renderConclusionView(container, type);
+                        $this._renderConclusionView(container, view);
                     }
                     break;
                 case 4:
                     $this._debug('render conclusion view');
-                    $this._renderConclusionView(container, type);
+                    $this._renderConclusionView(container, view);
                     break;
                 default:
                     $this._error('undefined view :(');
@@ -623,7 +774,7 @@
             container.find('.loading').remove();
             // After render callback
             if (typeof afterRenderCallback == 'function') {
-                afterRenderCallback(container, type);
+                afterRenderCallback(container, view);
             }
         }
     };

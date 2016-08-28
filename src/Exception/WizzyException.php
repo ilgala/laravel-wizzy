@@ -14,10 +14,11 @@ namespace IlGala\LaravelWizzy\Exception;
 use Exception;
 
 /**
- * This is the wizzy exception class;.
+ * This is the Wizzy exception class.
  *
  * @author ilgala
  */
 class WizzyException extends Exception
 {
+
 }

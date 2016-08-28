@@ -18,7 +18,7 @@
 
         <!-- Styles -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-        <link rel="stylesheet" href="/assets/wizzy/css/wizzy.css">
+        <link rel="stylesheet" href="/assets/js/wizzy/css/wizzy.css">
 
 
         <style>
@@ -54,11 +54,11 @@
 
         <!-- modals -->
         @if(Wizzy::isDatabaseStepEnabled())
-        @include('wizzy::modals.confirm_database');
+        @include('wizzy::modals.confirm_database')
         @endif
 
         @if(Wizzy::isEnvironmentStepEnabled())
-        @include('wizzy::modals.confirm_environment');
+        @include('wizzy::modals.confirm_environment')
         @endif
 
         <!-- JavaScripts -->
@@ -66,9 +66,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
         <script src="/assets/js/wizzy/wizzy.js"></script>
-        <script src="/assets/js/wizzy/locale/en.js"></script>
+        <script src="/assets/js/wizzy/i18n/en.js"></script>
         <script>
-$(document).ready(function () {
+        $(document).ready(function () {
 $('#wizzy').wizzy({
 environment: {{ Wizzy::isEnvironmentStepEnabled() }},
         database: {{ Wizzy::isDatabaseStepEnabled() }},
@@ -76,9 +76,10 @@ environment: {{ Wizzy::isEnvironmentStepEnabled() }},
         welcomeRoute: "{{ route(Wizzy::getPrefix() . '.wizzy') }}",
         environmentRoute: "{{ route(Wizzy::getPrefix() . '.environment') }}",
         databaseRoute: "{{ route(Wizzy::getPrefix() . '.database') }}",
+        conclusionRoute: "{{ route(Wizzy::getPrefix() . '.conclusion') }}",
         executeRoute: "{{ route(Wizzy::getPrefix() . '.execute') }}",
-});
-});
+        });
+        });
         </script>
     </body>
 </html>

@@ -14,12 +14,13 @@ namespace IlGala\LaravelWizzy\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Description of WizzyFacade.
+ * This is the Wizzy facade class.
  *
  * @author ilgala
  */
 class Wizzy extends Facade
 {
+
     /**
      * Get the binding in the IoC container.
      *
@@ -29,4 +30,5 @@ class Wizzy extends Facade
     {
         return 'Wizzy'; // the IoC binding.
     }
+
 }
