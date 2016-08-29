@@ -31,6 +31,11 @@
     "config": {
         "preferred-install": "dist"
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "v1.1-dev"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }

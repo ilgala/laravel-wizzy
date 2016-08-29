@@ -18,7 +18,7 @@ Requirements:
 To get the latest version of Laravel Wizzy, simply require the project using [Composer](https://getcomposer.org):
 
 ```bash
-$ composer require ilgala/wizzy
+$ composer require ilgala/laravel-wizzy:dev-master
 ```
 
 Instead, you may of course manually update your require block and run `composer update` if you so choose:
@@ -26,7 +26,7 @@ Instead, you may of course manually update your require block and run `composer 
 ```json
 {
     "require": {
-        "ilgala/wizzy": "dev-master"
+        "ilgala/laravel-wizzy": "dev-master"
     }
 }
 ```
