@@ -33,7 +33,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "v0.1.0-alpha"
+            "dev-master": "v0.1-alpha"
         }
     }
     "minimum-stability": "alpha",
