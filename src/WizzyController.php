@@ -27,6 +27,7 @@ use Illuminate\Routing\Controller as BaseController;
  */
 class WizzyController extends BaseController implements WizzyInterface
 {
+
     use AuthorizesRequests,
         AuthorizesResources,
         DispatchesJobs,
@@ -75,7 +76,7 @@ class WizzyController extends BaseController implements WizzyInterface
         }
 
 
-        return view('wizzy::index');
+        return view('wizzy::index', ['wizzy' => $this->wizzy]);
     }
 
     /**
@@ -252,4 +253,5 @@ class WizzyController extends BaseController implements WizzyInterface
 
         return response()->json(compact('token', 'success', 'message'));
     }
+
 }

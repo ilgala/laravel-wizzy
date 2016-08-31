@@ -53,11 +53,11 @@
         </div>
 
         <!-- modals -->
-        @if(Wizzy::isDatabaseStepEnabled())
+        @if($wizzy->isDatabaseStepEnabled())
         @include('wizzy::modals.confirm_database')
         @endif
 
-        @if(Wizzy::isEnvironmentStepEnabled())
+        @if($wizzy->isEnvironmentStepEnabled())
         @include('wizzy::modals.confirm_environment')
         @endif
 
@@ -69,16 +69,16 @@
         <script src="/assets/js/wizzy/i18n/en.js"></script>
         <script>
         $(document).ready(function () {
-$('#wizzy').wizzy({
-environment: {{ Wizzy::isEnvironmentStepEnabled() }},
-        database: {{ Wizzy::isDatabaseStepEnabled() }},
-        redirectUrl: "{{ Wizzy::getRedirectUrl() }}",
-        welcomeRoute: "{{ route(Wizzy::getPrefix() . '.wizzy') }}",
-        environmentRoute: "{{ route(Wizzy::getPrefix() . '.environment') }}",
-        databaseRoute: "{{ route(Wizzy::getPrefix() . '.database') }}",
-        conclusionRoute: "{{ route(Wizzy::getPrefix() . '.conclusion') }}",
-        executeRoute: "{{ route(Wizzy::getPrefix() . '.execute') }}",
-        });
+            $('#wizzy').wizzy({
+                environment: {{ $wizzy->isEnvironmentStepEnabled() }},
+                database: {{ $wizzy->isDatabaseStepEnabled() }},
+                redirectUrl: "{{ $wizzy->getRedirectUrl() }}",
+                welcomeRoute: "{{ route($wizzy->getPrefix() . '.wizzy') }}",
+                environmentRoute: "{{ route($wizzy->getPrefix() . '.environment') }}",
+                databaseRoute: "{{ route($wizzy->getPrefix() . '.database') }}",
+                conclusionRoute: "{{ route($wizzy->getPrefix() . '.conclusion') }}",
+                executeRoute: "{{ route($wizzy->getPrefix() . '.execute') }}",
+            });
         });
         </script>
     </body>

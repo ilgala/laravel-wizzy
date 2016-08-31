@@ -13,6 +13,7 @@ namespace IlGala\LaravelWizzy;
 
 use Artisan;
 use File;
+use Illuminate\Contracts\Config\Repository;
 
 /**
  * This is Wizzy class.
@@ -21,69 +22,40 @@ use File;
  */
 class Wizzy
 {
+
     /**
      * Config repository.
      *
-     * @var \Illuminate\Config\Repository
+     * @var \Illuminate\Contracts\Config\Repository
      */
-    protected $config_repository;
-
-    /**
-     * Illuminate router class.
-     *
-     * @var \Illuminate\Routing\Router
-     */
-    protected $router;
-
-    /**
-     * Illuminate request class.
-     *
-     * @var \Illuminate\Routing\Request
-     */
-    protected $request;
-
-    /**
-     * Illuminate request class.
-     *
-     * @var Illuminate\Foundation\Application
-     */
-    protected $app;
-
-    /**
-     * Application system requirements array.
-     *
-     * @var array
-     */
-    private $system_requirements;
-
-    /**
-     * Wizzy enabled steps.
-     *
-     * @var array
-     */
-    private $steps;
-
-    /**
-     * Wizzy route group prefix.
-     *
-     * @var string
-     */
-    private $prefix;
+    protected $config;
 
     /**
      * Creates new instance.
      */
-    public function __construct()
+    public function __construct(Repository $config)
     {
-        $this->app = app();
+        $this->config = $config;
+    }
 
-        $this->config_repository = $this->app['config'];
-        $this->router = $this->app['router'];
-        $this->request = $this->app['request'];
+    /**
+     * Get the config instance.
+     *
+     * @return \Illuminate\Contracts\Config\Repository
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
 
-        $this->system_requirements = $this->config_repository->get('wizzy.system_requirements');
-        $this->steps = $this->config_repository->get('wizzy.steps');
-        $this->prefix = $this->config_repository->get('wizzy.prefix', '');
+    /**
+     * Get the configuration name.
+     *
+     * @return string
+     */
+    protected function getConfigName()
+    {
+        return 'wizzy';
     }
 
     /**
@@ -91,11 +63,9 @@ class Wizzy
      *
      * @return string wizzy.prefix
      */
-    public static function getPrefix()
+    public function getPrefix()
     {
-        $config_repository = app()->app['config'];
-
-        return $config_repository->get('wizzy.prefix', '');
+        return $this->config->get($this->getConfigName() . '.prefix', '');
     }
 
     /**
@@ -103,11 +73,9 @@ class Wizzy
      *
      * @return string wizzy.environment
      */
-    public static function getDefaultEnv()
+    public function getDefaultEnv()
     {
-        $config_repository = app()->app['config'];
-
-        return $config_repository->get('wizzy.enviroment', '.env.example');
+        return $this->config->get($this->getConfigName() . '.environment', '.env');
     }
 
     /**
@@ -115,114 +83,9 @@ class Wizzy
      *
      * @return string wizzy.redirectTo
      */
-    public static function getRedirectUrl()
+    public function getRedirectUrl()
     {
-        $config_repository = app()->app['config'];
-
-        return $config_repository->get('wizzy.redirectTo', '/');
-    }
-
-    /**
-     * Check if wizzy is enabled from the config file.
-     *
-     * @return bool true|false
-     */
-    public static function isWizzyEnabled()
-    {
-        $config_repository = app()->app['config'];
-
-        return $config_repository->get('wizzy.wizzy_enabled') ? 'true' : 'false';
-    }
-
-    /**
-     * Check if wizzy environment step is enabled from the config file.
-     *
-     * @return string wizzy.steps.environment
-     */
-    public static function isEnvironmentStepEnabled()
-    {
-        $config_repository = app()->app['config'];
-
-        return $config_repository->get('wizzy.steps.environment') ? 'true' : 'false';
-    }
-
-    /**
-     * Check if wizzy database step is enabled from the config file.
-     *
-     * @return string wizzy.steps.database
-     */
-    public static function isDatabaseStepEnabled()
-    {
-        $config_repository = app()->app['config'];
-
-        return $config_repository->get('wizzy.steps.database') ? 'true' : 'false';
-    }
-
-    /**
-     * Stores the $variables array as an environment file. If the $wizzy_enabled
-     * variable is true, then it will add WIZZY_ENABLED=false variable in the
-     * .env file.
-     *
-     * @param string $filename
-     * @param string $variables
-     * @param bool   $wizzy_enabled
-     *
-     * @return string filename
-     */
-    public static function environmentStore($filename, $variables, $wizzy_enabled = false)
-    {
-        if (strlen($filename) == 0) {
-            $filename = '.env';
-        }
-
-        $file = fopen(base_path($filename), 'w');
-
-        $exploded_variables = explode('|', $variables);
-
-        foreach ($exploded_variables as $variable) {
-            $exploded_variable = explode(':', $variable, 2);
-
-            if ($exploded_variable[0] == 'APP_ENV') {
-                $config_repository = app()->app['config'];
-            }
-
-            fwrite($file, $exploded_variable[0].'='.$exploded_variable[1]."\n");
-        }
-
-        if ($wizzy_enabled) {
-            fwrite($file, "WIZZY_ENABLED=false\n");
-        }
-
-        fclose($file);
-
-        // reset config
-        Artisan::call('config:clear');
-        Artisan::call('config:cache');
-
-        return $filename;
-    }
-
-    /**
-     * Runs the artisan 'migrate' command.
-     *
-     * @param string $path
-     * @param bool   $refresh_database
-     * @param bool   $seed_database
-     */
-    public static function runMigration($path, $refresh_database, $seed_database)
-    {
-        // Retrieve force flag
-        $config_repository = app()->app['config'];
-
-        $force_flag = $config_repository->get('wizzy.foce_flag');
-
-        // Check database refresh
-        if ($refresh_database) {
-            Artisan::call('migrate:refresh', ['--seed' => $seed_database]);
-        } else {
-            // Call migrations
-            Artisan::call('migrate', ['--path' => $path, '--force' => $force_flag]);
-        }
+        return $this->config->get($this->getConfigName() . '.redirectTo', '/');
     }
 
     /**
@@ -245,6 +108,96 @@ class Wizzy
     }
 
     /**
+     * Check if wizzy is enabled from the config file.
+     *
+     * @return bool true|false
+     */
+    public function isWizzyEnabled()
+    {
+        return $this->config->get($this->getConfigName() . '.wizzy_enabled', false) ? 'true' : 'false';
+    }
+
+    /**
+     * Check if wizzy environment step is enabled from the config file.
+     *
+     * @return string wizzy.steps.environment
+     */
+    public function isEnvironmentStepEnabled()
+    {
+        return $this->config->get($this->getConfigName() . '.steps.environment', false) ? 'true' : 'false';
+    }
+
+    /**
+     * Check if wizzy database step is enabled from the config file.
+     *
+     * @return string wizzy.steps.database
+     */
+    public function isDatabaseStepEnabled()
+    {
+        return $this->config->get($this->getConfigName() . '.steps.database', false) ? 'true' : 'false';
+    }
+
+    /**
+     * Stores the $variables array as an environment file. If the $wizzy_enabled
+     * variable is true, then it will add WIZZY_ENABLED=false variable in the
+     * .env file.
+     *
+     * @param string $filename
+     * @param string $variables
+     * @param bool   $wizzy_enabled
+     *
+     * @return string filename
+     */
+    public function environmentStore($filename, $variables, $wizzy_enabled = false)
+    {
+        if (strlen($filename) == 0) {
+            $filename = '.env';
+        }
+
+        $file = fopen(base_path($filename), 'w');
+
+        $exploded_variables = explode('|', $variables);
+
+        foreach ($exploded_variables as $variable) {
+            $exploded_variable = explode(':', $variable, 2);
+            fwrite($file, $exploded_variable[0] . '=' . $exploded_variable[1] . "\n");
+        }
+
+        if ($wizzy_enabled) {
+            fwrite($file, "WIZZY_ENABLED=false\n");
+        }
+
+        fclose($file);
+
+        // reset config
+        Artisan::call('config:clear');
+        Artisan::call('config:cache');
+
+        return $filename;
+    }
+
+    /**
+     * Runs the artisan 'migrate' command.
+     *
+     * @param string $path
+     * @param bool   $refresh_database
+     * @param bool   $seed_database
+     */
+    public function runMigration($path, $refresh_database, $seed_database)
+    {
+        // Retrieve force flag
+        $force_flag = $this->config->get($this->getConfigName() . '.foce_flag');
+
+        // Check database refresh
+        if ($refresh_database) {
+            Artisan::call('migrate:refresh', ['--seed' => $seed_database]);
+        } else {
+            // Call migrations
+            Artisan::call('migrate', ['--path' => $path, '--force' => $force_flag]);
+        }
+    }
+
+    /**
      * Runs an artisan command.
      *
      * @param type $command
@@ -252,7 +205,7 @@ class Wizzy
      *
      * @return void
      */
-    public static function artisanCall($command, $attributes = [])
+    public function artisanCall($command, $attributes = [])
     {
         Artisan::call($command, $attributes);
     }
@@ -270,16 +223,16 @@ class Wizzy
         $temp_version = explode('.', phpversion());
         $version = ($temp_version[0] * 10000 + $temp_version[1] * 100 + $temp_version[2]);
 
-        $temp_required_version = explode('.', $this->config_repository->get('wizzy.system_requirements.php.required'));
+        $temp_required_version = explode('.', $this->config->get($this->getConfigName() . '.system_requirements.php.required'));
         $required_version = ($temp_required_version[0] * 10000 + $temp_required_version[1] * 100 + $temp_required_version[2]);
 
-        $temp_preferred_version = explode('.', $this->config_repository->get('wizzy.system_requirements.php.preferred'));
+        $temp_preferred_version = explode('.', $this->config->get($this->getConfigName() . '.system_requirements.php.preferred'));
         $preferred_version = ($temp_preferred_version[0] * 10000 + $temp_preferred_version[1] * 100 + $temp_preferred_version[2]);
 
         return [
-            'required'  => ($version < $required_version),
+            'required' => ($version < $required_version),
             'preferred' => ($version < $preferred_version),
-            'version'   => ($version < $required_version ? $this->config_repository->get('wizzy.system_requirements.php.required') : $version < $preferred_version ? $this->config_repository->get('wizzy.system_requirements.php.preferred') : ''),
+            'version' => ($version < $required_version ? $this->config->get($this->getConfigName() . '.system_requirements.php.required') : $version < $preferred_version ? $this->config->get($this->getConfigName() . '.system_requirements.php.preferred') : ''),
         ];
     }
 
@@ -291,7 +244,7 @@ class Wizzy
      */
     public function checkPHPExstensions()
     {
-        $raw_extensions = $this->config_repository->get('wizzy.system_requirements.php_extensions');
+        $raw_extensions = $this->config->get($this->getConfigName() . '.system_requirements.php_extensions');
         $extensions = [];
 
         foreach ($raw_extensions as $extension) {
@@ -348,7 +301,7 @@ class Wizzy
                 // Not a comment, explode line
                 $variable = explode('=', $line);
                 if ($variable[0] != 'WIZZY_ENABLED') {
-                    $env_variables .= $variable[0].':'.$variable[1];
+                    $env_variables .= $variable[0] . ':' . $variable[1];
                 }
             }
 
@@ -359,4 +312,5 @@ class Wizzy
 
         return $env_variables;
     }
+
 }

@@ -12,11 +12,13 @@
     ],
     "require": {
         "php": ">=5.5.9",
-        "laravel/framework": "5.*"
+        "laravel/framework": "5.*",
+        "illuminate/contracts": "5.1.*|5.2.*|5.3.*"
     },    
     "require-dev": {
-        "php": ">=5.5.9",
-        "laravel/framework": "5.*"
+        "graham-campbell/testbench": "^3.1",
+        "mockery/mockery": "^0.9.4",
+        "phpunit/phpunit": "^4.8|^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -25,7 +27,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "IlGala\\LaravelWizzy\\": "src/"
+            "IlGala\\LaravelWizzy\\": "tests/"
         }
     },
     "config": {

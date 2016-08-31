@@ -11,6 +11,7 @@
 
 namespace IlGala\LaravelWizzy;
 
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Laravel\Lumen\Application as LumenApplication;
@@ -22,6 +23,7 @@ use Laravel\Lumen\Application as LumenApplication;
  */
 class WizzyServiceProvider extends LaravelServiceProvider
 {
+
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -49,8 +51,10 @@ class WizzyServiceProvider extends LaravelServiceProvider
      */
     public function register()
     {
-        $this->app['wizzy'] = $this->app->share(function () {
-            return new Wizzy();
+        $this->app->singleton('wizzy', function (Container $app) {
+            $config = $app['config'];
+
+            return new Wizzy($config);
         });
 
         $this->app->alias('wizzy', Wizzy::class);
@@ -63,7 +67,9 @@ class WizzyServiceProvider extends LaravelServiceProvider
      */
     public function provides()
     {
-        return ['wizzy'];
+        return [
+            'wizzy'
+        ];
     }
 
     /**
@@ -73,7 +79,7 @@ class WizzyServiceProvider extends LaravelServiceProvider
      */
     private function handleConfigs()
     {
-        $source = realpath(__DIR__.'/../config/wizzy.php');
+        $source = realpath(__DIR__ . '/../config/wizzy.php');
 
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('wizzy.php')]);
@@ -91,9 +97,9 @@ class WizzyServiceProvider extends LaravelServiceProvider
      */
     private function handleViews()
     {
-        $this->loadViewsFrom(__DIR__.'/Views', 'wizzy');
+        $this->loadViewsFrom(__DIR__ . '/Views', 'wizzy');
 
-        $this->publishes([__DIR__.'/Views' => base_path('resources/views/vendor/wizzy')]);
+        $this->publishes([__DIR__ . '/Views' => base_path('resources/views/vendor/wizzy')]);
     }
 
     /**
@@ -103,7 +109,7 @@ class WizzyServiceProvider extends LaravelServiceProvider
      */
     private function handleAssets()
     {
-        $this->publishes([__DIR__.'/../public/assets' => public_path('assets')], 'public');
+        $this->publishes([__DIR__ . '/../public/assets' => public_path('assets')], 'public');
     }
 
     /**
@@ -113,6 +119,7 @@ class WizzyServiceProvider extends LaravelServiceProvider
      */
     private function handleRoutes()
     {
-        include __DIR__.'/routes.php';
+        include __DIR__ . '/routes.php';
     }
+
 }

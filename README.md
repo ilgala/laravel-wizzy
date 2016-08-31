@@ -514,6 +514,14 @@ Here you can see a few examples of how you can customize the wizard.
 
     COMING SOON
 
+## Tests
+
+I'm using [Laravel-TestBench](https://github.com/GrahamCampbell/Laravel-TestBench) by [Graham Campell](https://github.com/GrahamCampbell) for all the package tests.
+
+## Security
+
+If you discover a security vulnerability within this package, please send an e-mail to Filippo Galante at filippo.galante@b-ground.com. All security vulnerabilities will be promptly addressed.
+
 ## License
 
 Laravel Wizzy is licensed under [The MIT License (MIT)](LICENSE).

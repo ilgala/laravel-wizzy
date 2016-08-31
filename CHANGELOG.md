@@ -1,7 +1,10 @@
 CHANGE LOG
 ==========
 
+## V0.2-alpha (xx/xx/xxxx)
 
-## V1.0.0-alpha (28/08/2016)
+* Tests created
 
-* Initial testing release
+## V0.1-alpha (29/08/2016)
+
+* Ready for tests
