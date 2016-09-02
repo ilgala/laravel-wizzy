@@ -29,7 +29,6 @@ class WizzyController extends BaseController implements WizzyInterface
 {
 
     use AuthorizesRequests,
-        AuthorizesResources,
         DispatchesJobs,
         ValidatesRequests;
 
