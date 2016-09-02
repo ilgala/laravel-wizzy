@@ -12,8 +12,10 @@
     ],
     "require": {
         "php": ">=5.5.9",
-        "laravel/framework": "5.*",
-        "illuminate/contracts": "5.1.*|5.2.*|5.3.*"
+        "illuminate/contracts": "5.1.*|5.2.*|5.3.*",
+        "illuminate/foundation": "5.1.*|5.2.*|5.3.*",
+        "illuminate/http": "5.1.*|5.2.*|5.3.*",
+        "illuminate/routing": "5.1.*|5.2.*|5.3.*",
     },    
     "require-dev": {
         "graham-campbell/testbench": "^3.1",
